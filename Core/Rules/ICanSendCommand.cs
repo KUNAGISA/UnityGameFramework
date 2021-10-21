@@ -12,9 +12,9 @@ namespace Framework
             self.GetArchitecture().SendCommand<T>();
         }
 
-        public static void SendCommand<T>(this ICanSendCommand self, ref T e) where T : ICommand
+        public static void SendCommand<T>(this ICanSendCommand self, T e) where T : ICommand
         {
-            self.GetArchitecture().SendCommand(ref e);
+            self.GetArchitecture().SendCommand(e);
         }
     }
 }
