@@ -5,133 +5,133 @@ namespace Framework
 {
     public abstract class Architecture<T> : IArchitecture where T : Architecture<T>, new()
     {
-        private static T mArchitecture = null;
+        private static T m_Architecture = null;
 
         static public IArchitecture Instance
         {
             get 
             {
                 MakeSureArchitecture();
-                return mArchitecture;
+                return m_Architecture;
             }
         }
 
         static void MakeSureArchitecture()
         {
-            if (mArchitecture != null)
+            if (m_Architecture != null)
                 return;
 
-            mArchitecture = new T();
-            mArchitecture.Init();
+            m_Architecture = new T();
+            m_Architecture.Init();
 
-            foreach(var model in mArchitecture.mInitModelList)
+            foreach(var model in m_Architecture.m_InitModelList)
             {
                 model.InitMode();
             }
-            mArchitecture.mInitModelList.Clear();
+            m_Architecture.m_InitModelList.Clear();
 
-            foreach(var system in mArchitecture.mInitSystemList)
+            foreach(var system in m_Architecture.m_InitSystemList)
             {
                 system.InitSystem();
             }
-            mArchitecture.mInitSystemList.Clear();
+            m_Architecture.m_InitSystemList.Clear();
 
-            mArchitecture.mInit = true;
+            m_Architecture.mInit = true;
         }
 
         protected abstract void Init();
 
-        private IOCContainer mIOCContainer = new IOCContainer();
-        private EventSystem mEventSystem = new EventSystem();
+        private IOCContainer m_IOCContainer = new IOCContainer();
+        private EventSystem m_EventSystem = new EventSystem();
 
         /// <summary>
-        ///  «∑Ò“—æ≠≥ı ºªØ
+        /// ÊòØÂê¶Â∑≤ÁªèÂàùÂßãÂåñ
         /// </summary>
         private bool mInit = false;
 
-        private List<IModel> mInitModelList = new List<IModel>();
-        private List<ISystem> mInitSystemList = new List<ISystem>();
+        private List<IModel> m_InitModelList = new List<IModel>();
+        private List<ISystem> m_InitSystemList = new List<ISystem>();
 
         public void RegisterModel<TModel>(TModel model) where TModel : IModel
         {
             model.SetArchiecture(this);
-            mIOCContainer.Register(model);
+            m_IOCContainer.Register(model);
             if (mInit)
             {
                 model.InitMode();
             }
             else
             {
-                mInitModelList.Add(model);
+                m_InitModelList.Add(model);
             }
         }
 
         public void RegisterSystem<TSystem>(TSystem system) where TSystem : ISystem
         {
             system.SetArchiecture(this);
-            mIOCContainer.Register(system);
+            m_IOCContainer.Register(system);
             if (mInit)
             {
                 system.InitSystem();
             }
             else
             {
-                mInitSystemList.Add(system);
+                m_InitSystemList.Add(system);
             }
         }
 
         public void RegisterUtility<TUtility>(TUtility utility) where TUtility : IUtility
         {
             utility.SetArchiecture(this);
-            mIOCContainer.Register(utility);
+            m_IOCContainer.Register(utility);
         }
 
         public TSystem GetSystem<TSystem>() where TSystem : class, ISystem
         {
-            return mIOCContainer.Get<TSystem>();
+            return m_IOCContainer.Get<TSystem>();
         }
 
         public TModel GetModel<TModel>() where TModel : class, IModel
         {
-            return mIOCContainer.Get<TModel>();
+            return m_IOCContainer.Get<TModel>();
         }
 
         public TUtility GetUtility<TUtility>() where TUtility : class, IUtility
         {
-            return mIOCContainer.Get<TUtility>();
+            return m_IOCContainer.Get<TUtility>();
         }
 
-        public void SendCommand<TCommand>() where TCommand : ICommand, new()
+        public virtual void SendCommand<TCommand>() where TCommand : ICommand, new()
         {
             TCommand command = new TCommand();
-            SendCommand(ref command);
+            SendCommand(command);
         }
 
-        public void SendCommand<TCommand>(ref TCommand command) where TCommand : ICommand
+        public virtual void SendCommand<TCommand>(TCommand command) where TCommand : ICommand
         {
             command.SetArchiecture(this);
             command.Execute();
             command.SetArchiecture(null);
         }
 
-        public void SendEvent<TEvent>() where TEvent : new()
+        public virtual void SendEvent<TEvent>() where TEvent : new()
         {
-            mEventSystem.Send<TEvent>();
+            m_EventSystem.Send<TEvent>();
         }
 
-        public void SendEvent<TEvent>(in TEvent e)
+        public virtual void SendEvent<TEvent>(in TEvent e)
         {
-            mEventSystem.Send(e);
+            m_EventSystem.Send(e);
         }
 
         public IUnRegister RegisterEvent<TEvent>(Action<TEvent> onEvent)
         {
-            return mEventSystem.Register(onEvent);
+            return m_EventSystem.Register(onEvent);
         }
 
         public void UnRegisterEvent<TEvent>(Action<TEvent> onEvent)
         {
-            mEventSystem.UnRegister(onEvent);
+            m_EventSystem.UnRegister(onEvent);
         }
     }
 }

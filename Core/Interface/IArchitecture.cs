@@ -17,7 +17,7 @@ namespace Framework
         T GetUtility<T>() where T : class, IUtility;
 
         void SendCommand<T>() where T : ICommand, new();
-        void SendCommand<T>(ref T command) where T : ICommand;
+        void SendCommand<T>(T command) where T : ICommand;
 
         void SendEvent<T>() where T : new();
         void SendEvent<T>(in T e);

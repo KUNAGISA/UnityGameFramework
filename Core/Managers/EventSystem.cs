@@ -47,7 +47,7 @@ namespace Framework
             public Action<T> OnEvent;
         }
 
-        private Dictionary<Type, IRegistrations> mEventRegistration = new Dictionary<Type, IRegistrations>();
+        private Dictionary<Type, IRegistrations> m_EventRegistration = new Dictionary<Type, IRegistrations>();
 
         public void Send<T>() where T : new()
         {
@@ -58,7 +58,7 @@ namespace Framework
         public void Send<T>(in T e)
         {
             var type = typeof(T);
-            if (mEventRegistration.TryGetValue(type, out var registrations))
+            if (m_EventRegistration.TryGetValue(type, out var registrations))
             {
                 (registrations as Registrations<T>)?.OnEvent(e);
             }
@@ -67,10 +67,10 @@ namespace Framework
         public IUnRegister Register<T>(Action<T> onEvent)
         {
             var type = typeof(T);
-            if (!mEventRegistration.TryGetValue(type, out var registrations))
+            if (!m_EventRegistration.TryGetValue(type, out var registrations))
             {
                 registrations = new Registrations<T>();
-                mEventRegistration.Add(type, registrations);
+                m_EventRegistration.Add(type, registrations);
             }
 
             (registrations as Registrations<T>).OnEvent += onEvent;
@@ -81,7 +81,7 @@ namespace Framework
         public void UnRegister<T>(Action<T> onEvent)
         {
             var type = typeof(T);
-            if (mEventRegistration.TryGetValue(type, out var registrations))
+            if (m_EventRegistration.TryGetValue(type, out var registrations))
             {
                 (registrations as Registrations<T>).OnEvent -= onEvent;
             }

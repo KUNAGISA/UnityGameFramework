@@ -3,16 +3,16 @@ namespace Framework
 {
     public abstract class AbstractUtility : IUtility, ICanGetUtility
     {
-        private IArchitecture mArchitecture;
+        private IArchitecture m_Architecture;
 
         IArchitecture IBelongArchiecture.GetArchitecture()
         {
-            return mArchitecture;
+            return m_Architecture;
         }
 
         void ICanSetArchiecture.SetArchiecture(IArchitecture architecture)
         {
-            mArchitecture = architecture;
+            m_Architecture = architecture;
         }
     }
 }

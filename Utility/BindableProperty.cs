@@ -8,18 +8,18 @@ namespace Framework
         public delegate void OnBindablePropertyChange(in T value);
         public OnBindablePropertyChange OnValueChanged;
 
-        private T mValue = default(T);
+        private T m_Value = default(T);
 
         public T Value
         {
-            get => mValue;
+            get => m_Value;
 
             set
             {
-                if (!value.Equals(mValue))
+                if (!value.Equals(m_Value))
                 {
-                    mValue = value;
-                    OnValueChanged?.Invoke(in mValue);
+                    m_Value = value;
+                    OnValueChanged?.Invoke(in m_Value);
                 }
 
             }
