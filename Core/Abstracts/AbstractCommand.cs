@@ -1,6 +1,9 @@
-
+﻿
 namespace Framework
 {
+    /// <summary>
+    /// 数据增删改基类
+    /// </summary>
     public abstract class AbstractCommand : ICommand
     {
         void ICommand.Execute()

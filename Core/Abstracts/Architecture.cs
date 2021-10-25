@@ -3,6 +3,10 @@ using System;
 
 namespace Framework
 {
+    /// <summary>
+    /// 框架基类
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public abstract class Architecture<T> : IArchitecture where T : Architecture<T>, new()
     {
         private static T m_Architecture = null;
@@ -112,6 +116,14 @@ namespace Framework
             command.SetArchiecture(this);
             command.Execute();
             command.SetArchiecture(null);
+        }
+
+        public TResult SendQuery<TResult>(IQuery<TResult> query)
+        {
+            query.SetArchiecture(this);
+            var result = query.Do();
+            query.SetArchiecture(null);
+            return result;
         }
 
         public virtual void SendEvent<TEvent>() where TEvent : new()

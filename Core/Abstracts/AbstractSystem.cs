@@ -1,6 +1,10 @@
-
+﻿
 namespace Framework
 {
+    /// <summary>
+    /// 系统模块基类
+    /// 专注做逻辑
+    /// </summary>
     public abstract class AbstractSystem : ISystem
     {
         void ISystem.InitSystem()

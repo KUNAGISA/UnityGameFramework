@@ -1,6 +1,9 @@
-
+﻿
 namespace Framework
 {
+    /// <summary>
+    /// 工具基类
+    /// </summary>
     public abstract class AbstractUtility : IUtility, ICanGetUtility
     {
         private IArchitecture m_Architecture;

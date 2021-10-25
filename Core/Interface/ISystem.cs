@@ -1,10 +1,10 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Framework
 {
-    public interface ISystem : IBelongArchiecture, ICanSetArchiecture, ICanGetUtility, ICanGetModel, ICanRegisterEvent, ICanSendEvent
+    public interface ISystem : IBelongArchiecture, ICanSetArchiecture, ICanGetUtility, ICanGetModel, ICanRegisterEvent, ICanSendEvent, ICanSendQuery
     {
         void InitSystem();
     }
