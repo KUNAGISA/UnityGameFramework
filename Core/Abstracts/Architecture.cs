@@ -133,15 +133,15 @@ namespace Framework
 
         public virtual void SendEvent<TEvent>(in TEvent e)
         {
-            m_EventSystem.Send(e);
+            m_EventSystem.Send(in e);
         }
 
-        public IUnRegister RegisterEvent<TEvent>(Action<TEvent> onEvent)
+        public IUnRegister RegisterEvent<TEvent>(IEventSystem.OnEventHandler<TEvent> onEvent)
         {
             return m_EventSystem.Register(onEvent);
         }
 
-        public void UnRegisterEvent<TEvent>(Action<TEvent> onEvent)
+        public void UnRegisterEvent<TEvent>(IEventSystem.OnEventHandler<TEvent> onEvent)
         {
             m_EventSystem.UnRegister(onEvent);
         }

@@ -86,13 +86,13 @@ namespace Framework
         /// <typeparam name="T">事件</typeparam>
         /// <param name="onEvent">事件回调</param>
         /// <returns>注册句柄</returns>
-        IUnRegister RegisterEvent<T>(Action<T> onEvent);
+        IUnRegister RegisterEvent<T>(IEventSystem.OnEventHandler<T> onEvent);
 
         /// <summary>
         /// 注销事件监听
         /// </summary>
         /// <typeparam name="T">事件</typeparam>
         /// <param name="onEvent">回调</param>
-        void UnRegisterEvent<T>(Action<T> onEvent);
+        void UnRegisterEvent<T>(IEventSystem.OnEventHandler<T> onEvent);
     }
 }

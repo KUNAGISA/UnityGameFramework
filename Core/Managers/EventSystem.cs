@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace Framework
@@ -11,9 +11,9 @@ namespace Framework
     public struct EventSystemUnRegister<T> : IUnRegister
     {
         private IEventSystem mEventSystem;
-        private Action<T> mOnEvent;
+        private IEventSystem.OnEventHandler<T> mOnEvent;
 
-        public EventSystemUnRegister(IEventSystem eventSystem, Action<T> onEvent)
+        public EventSystemUnRegister(IEventSystem eventSystem, IEventSystem.OnEventHandler<T> onEvent)
         {
             mEventSystem = eventSystem;
             mOnEvent = onEvent;
@@ -29,11 +29,13 @@ namespace Framework
 
     public interface IEventSystem
     {
+        delegate void OnEventHandler<T>(in T e);
+
         void Send<T>() where T : new();
         void Send<T>(in T e);
 
-        IUnRegister Register<T>(Action<T> onEvent);
-        void UnRegister<T>(Action<T> onEvent);
+        IUnRegister Register<T>(OnEventHandler<T> onEvent);
+        void UnRegister<T>(OnEventHandler<T> onEvent);
     }
 
     public class EventSystem : IEventSystem
@@ -44,7 +46,7 @@ namespace Framework
 
         public class Registrations<T> : IRegistrations
         {
-            public Action<T> OnEvent;
+            public IEventSystem.OnEventHandler<T> OnEvent;
         }
 
         private Dictionary<Type, IRegistrations> m_EventRegistration = new Dictionary<Type, IRegistrations>();
@@ -52,7 +54,7 @@ namespace Framework
         public void Send<T>() where T : new()
         {
             var e = new T();
-            Send(e);
+            Send(in e);
         }
 
         public void Send<T>(in T e)
@@ -60,11 +62,11 @@ namespace Framework
             var type = typeof(T);
             if (m_EventRegistration.TryGetValue(type, out var registrations))
             {
-                (registrations as Registrations<T>)?.OnEvent(e);
+                (registrations as Registrations<T>)?.OnEvent(in e);
             }
         }
 
-        public IUnRegister Register<T>(Action<T> onEvent)
+        public IUnRegister Register<T>(IEventSystem.OnEventHandler<T> onEvent)
         {
             var type = typeof(T);
             if (!m_EventRegistration.TryGetValue(type, out var registrations))
@@ -78,7 +80,7 @@ namespace Framework
             return new EventSystemUnRegister<T>(this, onEvent);
         }
 
-        public void UnRegister<T>(Action<T> onEvent)
+        public void UnRegister<T>(IEventSystem.OnEventHandler<T> onEvent)
         {
             var type = typeof(T);
             if (m_EventRegistration.TryGetValue(type, out var registrations))
