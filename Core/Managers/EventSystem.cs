@@ -10,20 +10,23 @@ namespace Framework
 
     public struct EventSystemUnRegister<T> : IUnRegister
     {
-        private IEventSystem mEventSystem;
-        private IEventSystem.OnEventHandler<T> mOnEvent;
+        private WeakReference<IEventSystem> m_EventSystem;
+        private IEventSystem.OnEventHandler<T> m_OnEvent;
 
         public EventSystemUnRegister(IEventSystem eventSystem, IEventSystem.OnEventHandler<T> onEvent)
         {
-            mEventSystem = eventSystem;
-            mOnEvent = onEvent;
+            m_OnEvent = onEvent;
+            m_EventSystem = new WeakReference<IEventSystem>(eventSystem);
         }
 
         public void UnRegister()
         {
-            mEventSystem.UnRegister(mOnEvent);
-            mEventSystem = null;
-            mOnEvent = null;
+            if (m_OnEvent != null && m_EventSystem.TryGetTarget(out var eventSystem))
+            {
+                eventSystem.UnRegister(m_OnEvent);
+            }
+            m_EventSystem.SetTarget(null);
+            m_OnEvent = null;
         }
     }
 
