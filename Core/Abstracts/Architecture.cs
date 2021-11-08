@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System;
 
 namespace Framework
 {
@@ -45,16 +44,16 @@ namespace Framework
 
         protected abstract void Init();
 
-        private IOCContainer m_IOCContainer = new IOCContainer();
-        private EventSystem m_EventSystem = new EventSystem();
+        private readonly IOCContainer m_IOCContainer = new IOCContainer();
+        private readonly EventSystem m_EventSystem = new EventSystem();
 
         /// <summary>
         /// 是否已经初始化
         /// </summary>
         private bool mInit = false;
 
-        private List<IModel> m_InitModelList = new List<IModel>();
-        private List<ISystem> m_InitSystemList = new List<ISystem>();
+        private readonly List<IModel> m_InitModelList = new List<IModel>();
+        private readonly List<ISystem> m_InitSystemList = new List<ISystem>();
 
         public void RegisterModel<TModel>(TModel model) where TModel : IModel
         {

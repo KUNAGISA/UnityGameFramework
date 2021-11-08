@@ -1,9 +1,7 @@
-﻿
-namespace Framework
+﻿namespace Framework
 {
     /// <summary>
-    /// 系统模块基类
-    /// 专注做逻辑
+    /// 系统逻辑模块基类
     /// </summary>
     public abstract class AbstractSystem : ISystem
     {

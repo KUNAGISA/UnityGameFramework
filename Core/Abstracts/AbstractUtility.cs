@@ -1,5 +1,4 @@
-﻿
-namespace Framework
+﻿namespace Framework
 {
     /// <summary>
     /// 工具基类

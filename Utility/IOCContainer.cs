@@ -1,13 +1,11 @@
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace Framework
 {
     public class IOCContainer
     {
-        Dictionary<Type, object> m_Instances = new Dictionary<Type, object>();
+        readonly Dictionary<Type, object> m_Instances = new Dictionary<Type, object>();
 
         public void Register<T>(T instance)
         {

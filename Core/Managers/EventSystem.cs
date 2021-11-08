@@ -10,7 +10,7 @@ namespace Framework
 
     public struct EventSystemUnRegister<T> : IUnRegister
     {
-        private WeakReference<IEventSystem> m_EventSystem;
+        private readonly WeakReference<IEventSystem> m_EventSystem;
         private IEventSystem.OnEventHandler<T> m_OnEvent;
 
         public EventSystemUnRegister(IEventSystem eventSystem, IEventSystem.OnEventHandler<T> onEvent)
@@ -52,7 +52,7 @@ namespace Framework
             public IEventSystem.OnEventHandler<T> OnEvent;
         }
 
-        private Dictionary<Type, IRegistrations> m_EventRegistration = new Dictionary<Type, IRegistrations>();
+        private readonly Dictionary<Type, IRegistrations> m_EventRegistration = new Dictionary<Type, IRegistrations>();
 
         public void Send<T>() where T : new()
         {

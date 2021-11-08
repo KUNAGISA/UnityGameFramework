@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace Framework
 {
@@ -8,7 +8,7 @@ namespace Framework
         public delegate void OnBindablePropertyChange(in T value);
         public OnBindablePropertyChange OnValueChanged;
 
-        private T m_Value = default(T);
+        private T m_Value = default;
 
         public T Value
         {

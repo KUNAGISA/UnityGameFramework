@@ -1,6 +1,8 @@
-
-namespace Framework
+﻿namespace Framework
 {
+    /// <summary>
+    /// 数据模块基类
+    /// </summary>
     public abstract class AbstractModel : IModel
     {
         void IModel.InitMode()
