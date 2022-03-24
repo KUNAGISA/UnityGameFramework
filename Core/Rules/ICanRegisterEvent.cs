@@ -1,7 +1,4 @@
-﻿
-using System;
-
-namespace Framework
+﻿namespace Framework
 {
     public interface ICanRegisterEvent : IBelongArchiecture
     {

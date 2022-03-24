@@ -6,7 +6,7 @@ namespace Framework
     /// 框架基类
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class Architecture<T> : IArchitecture where T : Architecture<T>, new()
+    public abstract class Architecture<T> : IArchitecture, ICommandOperate, IQueryOperate where T : Architecture<T>, new()
     {
         private static T m_Architecture = null;
 
@@ -107,22 +107,17 @@ namespace Framework
         public virtual void SendCommand<TCommand>() where TCommand : ICommand, new()
         {
             TCommand command = new TCommand();
-            SendCommand(command);
+            SendCommand(in command);
         }
 
-        public virtual void SendCommand<TCommand>(TCommand command) where TCommand : ICommand
+        public virtual void SendCommand<TCommand>(in TCommand command) where TCommand : ICommand
         {
-            command.SetArchiecture(this);
-            command.Execute();
-            command.SetArchiecture(null);
+            command.Execute(this);
         }
 
-        public TResult SendQuery<TResult>(IQuery<TResult> query)
+        public TResult SendQuery<TResult>(in IQuery<TResult> query)
         {
-            query.SetArchiecture(this);
-            var result = query.Do();
-            query.SetArchiecture(null);
-            return result;
+            return query.Do(this);
         }
 
         public virtual void SendEvent<TEvent>() where TEvent : new()
@@ -130,9 +125,9 @@ namespace Framework
             m_EventSystem.Send<TEvent>();
         }
 
-        public virtual void SendEvent<TEvent>(in TEvent e)
+        public virtual void SendEvent<TEvent>(in TEvent @event)
         {
-            m_EventSystem.Send(in e);
+            m_EventSystem.Send(in @event);
         }
 
         public IUnRegister RegisterEvent<TEvent>(IEventSystem.OnEventHandler<TEvent> onEvent)

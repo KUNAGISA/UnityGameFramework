@@ -1,5 +1,4 @@
-﻿
-namespace Framework
+﻿namespace Framework
 {
     public interface ICanSendCommand : IBelongArchiecture
     {
@@ -12,9 +11,9 @@ namespace Framework
             self.GetArchitecture().SendCommand<T>();
         }
 
-        public static void SendCommand<T>(this ICanSendCommand self, T e) where T : ICommand
+        public static void SendCommand<T>(this ICanSendCommand self, in T @event) where T : ICommand
         {
-            self.GetArchitecture().SendCommand(e);
+            self.GetArchitecture().SendCommand(@event);
         }
     }
 }

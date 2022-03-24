@@ -32,10 +32,10 @@ namespace Framework
 
     public interface IEventSystem
     {
-        delegate void OnEventHandler<T>(in T e);
+        delegate void OnEventHandler<T>(in T @event);
 
         void Send<T>() where T : new();
-        void Send<T>(in T e);
+        void Send<T>(in T @event);
 
         IUnRegister Register<T>(OnEventHandler<T> onEvent);
         void UnRegister<T>(OnEventHandler<T> onEvent);
@@ -56,16 +56,16 @@ namespace Framework
 
         public void Send<T>() where T : new()
         {
-            var e = new T();
-            Send(in e);
+            var @event = new T();
+            Send(in @event);
         }
 
-        public void Send<T>(in T e)
+        public void Send<T>(in T @event)
         {
             var type = typeof(T);
             if (m_EventRegistration.TryGetValue(type, out var registrations))
             {
-                (registrations as Registrations<T>)?.OnEvent(in e);
+                (registrations as Registrations<T>)?.OnEvent(in @event);
             }
         }
 

@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Framework.Internal.Operate;
 
 namespace Framework
 {
-    public interface IQuery<TResult> : IBelongArchiecture, ICanSetArchiecture, ICanGetUtility, ICanGetModel
+    public interface IQueryOperate : IGetModel, IGetSystem, IGetUtility, ISendQuery
     {
-        TResult Do();
+
+    }
+
+    public interface IQuery<TResult>
+    {
+        TResult Do(IQueryOperate operate);
     }
 }
