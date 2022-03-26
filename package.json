@@ -1,0 +1,10 @@
+{
+    "name": "com.kunagisa.framework",
+    "displayName": "Game Framework",
+    "description": "this is my game framework",
+    "version": "1.0.0",
+    "author":{
+        "name": "零",
+        "email": "kunagisatomo@live.com"
+    }
+}
