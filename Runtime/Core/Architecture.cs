@@ -1,3 +1,4 @@
+using Framework.Internal.Operate;
 using System.Collections.Generic;
 
 namespace Framework
@@ -17,6 +18,21 @@ namespace Framework
                 MakeSureArchitecture();
                 return m_Architecture;
             }
+        }
+
+        static public void DistoryInstance()
+        {
+            if (m_Architecture == null)
+            {
+                return;
+            }
+
+            foreach (var item in m_Architecture.m_IOCContainer)
+            {
+                (item as IDestory)?.Destroy();
+            }
+            
+            m_Architecture = null;
         }
 
         static void MakeSureArchitecture()
@@ -55,8 +71,19 @@ namespace Framework
         private readonly List<IModel> m_InitModelList = new List<IModel>();
         private readonly List<ISystem> m_InitSystemList = new List<ISystem>();
 
-        public void RegisterModel<TModel>(TModel model) where TModel : IModel
+        private void UnRegister<TInstance>() where TInstance : class
         {
+            var instance = m_IOCContainer.Get<TInstance>();
+            if (instance != null)
+            {
+                (instance as IDestory)?.Destroy();
+                m_IOCContainer.UnRegister<TInstance>();
+            }
+        }
+
+        public void RegisterModel<TModel>(TModel model) where TModel : class, IModel
+        {
+            UnRegister<TModel>();
             model.SetArchiecture(this);
             m_IOCContainer.Register(model);
             if (mInit)
@@ -69,8 +96,9 @@ namespace Framework
             }
         }
 
-        public void RegisterSystem<TSystem>(TSystem system) where TSystem : ISystem
+        public void RegisterSystem<TSystem>(TSystem system) where TSystem : class, ISystem
         {
+            UnRegister<TSystem>();
             system.SetArchiecture(this);
             m_IOCContainer.Register(system);
             if (mInit)
@@ -83,8 +111,9 @@ namespace Framework
             }
         }
 
-        public void RegisterUtility<TUtility>(TUtility utility) where TUtility : IUtility
+        public void RegisterUtility<TUtility>(TUtility utility) where TUtility : class, IUtility
         {
+            UnRegister<TUtility>();
             utility.SetArchiecture(this);
             m_IOCContainer.Register(utility);
         }

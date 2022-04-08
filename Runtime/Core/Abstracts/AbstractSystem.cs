@@ -1,26 +1,24 @@
-﻿namespace Framework
+﻿using Framework.Internal.Operate;
+
+namespace Framework
 {
     /// <summary>
     /// 系统逻辑模块基类
     /// </summary>
-    public abstract class AbstractSystem : ISystem
+    public abstract class AbstractSystem : ISystem, IDestory
     {
-        void ISystem.InitSystem()
-        {
-            OnInitSystem();
-        }
-        abstract protected void OnInitSystem();
-
         private IArchitecture m_Architecture;
 
-        IArchitecture IBelongArchiecture.GetArchitecture()
-        {
-            return m_Architecture;
-        }
+        void ISystem.InitSystem() => OnInitSystem();
 
-        void ICanSetArchiecture.SetArchiecture(IArchitecture architecture)
-        {
-            m_Architecture = architecture;
-        }
+        void IDestory.Destroy() => OnDestorySystem();
+
+        IArchitecture IBelongArchiecture.GetArchitecture() => m_Architecture;
+
+        void ICanSetArchiecture.SetArchiecture(IArchitecture architecture) => m_Architecture = architecture;
+
+        abstract protected void OnInitSystem();
+
+        abstract protected void OnDestorySystem();
     }
 }

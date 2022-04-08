@@ -1,20 +1,20 @@
-﻿namespace Framework
+﻿using Framework.Internal.Operate;
+
+namespace Framework
 {
     /// <summary>
     /// 工具基类
     /// </summary>
-    public abstract class AbstractUtility : IUtility, ICanGetUtility
+    public abstract class AbstractUtility : IUtility, IDestory
     {
         private IArchitecture m_Architecture;
 
-        IArchitecture IBelongArchiecture.GetArchitecture()
-        {
-            return m_Architecture;
-        }
+        void IDestory.Destroy() => OnDestoryUtility();
 
-        void ICanSetArchiecture.SetArchiecture(IArchitecture architecture)
-        {
-            m_Architecture = architecture;
-        }
+        IArchitecture IBelongArchiecture.GetArchitecture() => m_Architecture;
+
+        void ICanSetArchiecture.SetArchiecture(IArchitecture architecture) => m_Architecture = architecture;
+
+        abstract protected void OnDestoryUtility();
     }
 }

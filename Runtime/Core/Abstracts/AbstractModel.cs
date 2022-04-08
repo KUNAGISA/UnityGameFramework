@@ -1,26 +1,24 @@
-﻿namespace Framework
+﻿using Framework.Internal.Operate;
+
+namespace Framework
 {
     /// <summary>
     /// 数据模块基类
     /// </summary>
-    public abstract class AbstractModel : IModel
+    public abstract class AbstractModel : IModel, IDestory
     {
-        void IModel.InitMode()
-        {
-            OnInitModel();
-        }
-        abstract protected void OnInitModel();
-
         private IArchitecture m_Architecture;
 
-        IArchitecture IBelongArchiecture.GetArchitecture()
-        {
-            return m_Architecture;
-        }
+        void IModel.InitMode() => OnInitModel();
 
-        void ICanSetArchiecture.SetArchiecture(IArchitecture architecture)
-        {
-            m_Architecture = architecture;
-        }
+        void IDestory.Destroy() => OnDestoryModel();
+
+        IArchitecture IBelongArchiecture.GetArchitecture() => m_Architecture;
+
+        void ICanSetArchiecture.SetArchiecture(IArchitecture architecture) => m_Architecture = architecture;
+
+        abstract protected void OnInitModel();
+
+        abstract protected void OnDestoryModel();
     }
 }
