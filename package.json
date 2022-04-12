@@ -1,7 +1,7 @@
 {
     "name": "com.kunagisa.framework",
     "displayName": "Game Framework",
-    "description": "this is my game framework",
+    "description": "Unity游戏框架，分层管理模块",
     "version": "1.0.0",
     "author":{
         "name": "零",
