@@ -2,13 +2,13 @@
 
 namespace Framework
 {
-    public interface IQueryOperate : IGetModel, IGetSystem, IGetUtility, ISendQuery
+    public interface IQueryArchitecture : IGetModel, IGetSystem, IGetUtility, ISendQuery
     {
 
     }
 
     public interface IQuery<TResult>
     {
-        TResult Do(IQueryOperate operate);
+        TResult Do(IQueryArchitecture architecture);
     }
 }

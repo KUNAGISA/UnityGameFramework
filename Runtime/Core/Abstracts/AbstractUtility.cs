@@ -7,10 +7,14 @@ namespace Framework
     /// </summary>
     public abstract class AbstractUtility : IUtility
     {
-        private IArchitecture m_Architecture;
+        private IArchitecture m_architecture;
 
-        IArchitecture IBelongArchiecture.GetArchitecture() => m_Architecture;
+        IArchitecture IBelongArchiecture.GetArchitecture() => m_architecture;
 
-        void ICanSetArchiecture.SetArchiecture(IArchitecture architecture) => m_Architecture = architecture;
+        void ICanSetArchiecture.SetArchiecture(IArchitecture architecture) => m_architecture = architecture;
+
+        void IDestory.Destroy() => OnDestroy();
+
+        protected virtual void OnDestroy() { }
     }
 }

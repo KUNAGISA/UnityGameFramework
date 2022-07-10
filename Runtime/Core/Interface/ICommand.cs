@@ -2,13 +2,13 @@
 
 namespace Framework
 {
-    public interface ICommandOperate : IGetModel, IGetSystem, IGetUtility, ISendCommand, ISendQuery, ISendEvent
+    public interface ICommandArchiecture : IGetModel, IGetSystem, IGetUtility, ISendCommand, ISendQuery, ISendEvent
     {
 
     }
 
     public interface ICommand
     {
-        void Execute(ICommandOperate operate);
+        void Execute(ICommandArchiecture archiecture);
     }
 }

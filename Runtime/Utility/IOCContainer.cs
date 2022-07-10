@@ -1,54 +1,57 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace Framework
 {
-    public class IOCContainer : IEnumerable<object>
+    public class IOCContainer
     {
-        readonly Dictionary<Type, object> m_Instances = new Dictionary<Type, object>();
+        readonly Dictionary<Type, object> m_instances = new Dictionary<Type, object>();
 
         public void Register<T>(T instance) where T : class
         {
             var key = typeof(T);
-            if (!m_Instances.ContainsKey(key))
+            if (!m_instances.ContainsKey(key))
             {
-                m_Instances.Add(key, instance);
+                m_instances.Add(key, instance);
             }
             else
             {
-                m_Instances[key] = instance;
+                m_instances[key] = instance;
             }
         }
 
         public void UnRegister<T>() where T : class
         {
-            m_Instances.Remove(typeof(T));
+            m_instances.Remove(typeof(T));
         }
 
         public T Get<T>() where T : class
         {
             var key = typeof(T);
-            if (m_Instances.TryGetValue(key, out var instance))
+            if (m_instances.TryGetValue(key, out var instance))
             {
                 return instance as T;
             }
             return null;
         }
 
-        IEnumerator<object> IEnumerable<object>.GetEnumerator()
+        public void Each(Action<Type, object> handler)
         {
-            foreach(var value in m_Instances.Values)
+            foreach(var pairs in m_instances)
             {
-                yield return value;
+                handler(pairs.Key, pairs.Value);
             }
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
+        public void Each<T>(Action<T> handler) where T : class
         {
-            foreach (var value in m_Instances.Values)
+            foreach (var pairs in m_instances)
             {
-                yield return value;
+                var instance = pairs.Value as T;
+                if (instance != null)
+                {
+                    handler(instance);
+                }
             }
         }
     }

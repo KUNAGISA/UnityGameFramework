@@ -7,77 +7,75 @@ namespace Framework
     /// 框架基类
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class Architecture<T> : IArchitecture, ICommandOperate, IQueryOperate where T : Architecture<T>, new()
+    public abstract class Architecture<T> : IArchitecture, ICommandArchiecture, IQueryArchitecture where T : Architecture<T>, new()
     {
-        private static T m_Architecture = null;
+        private static T m_architecture = null;
 
         static public IArchitecture Instance
         {
             get 
             {
                 MakeSureArchitecture();
-                return m_Architecture;
+                return m_architecture;
             }
         }
 
+        static public bool IsValid => m_architecture != null;
+
         static public void DistoryInstance()
         {
-            if (m_Architecture == null)
+            if (m_architecture == null)
             {
                 return;
             }
 
-            foreach (var item in m_Architecture.m_IOCContainer)
-            {
-                (item as IDestory)?.Destroy();
-            }
-            
-            m_Architecture = null;
+            m_architecture.m_iocContainer.Each((IDestory instance) => instance.Destroy());
+            m_architecture = null;
         }
 
         static void MakeSureArchitecture()
         {
-            if (m_Architecture != null)
+            if (m_architecture != null)
                 return;
 
-            m_Architecture = new T();
-            m_Architecture.Init();
+            m_architecture = new T();
+            m_architecture.Init();
 
-            foreach(var model in m_Architecture.m_InitModelList)
+            foreach(var model in m_architecture.m_initModelList)
             {
                 model.InitMode();
             }
-            m_Architecture.m_InitModelList.Clear();
+            m_architecture.m_initModelList.Clear();
 
-            foreach(var system in m_Architecture.m_InitSystemList)
+            foreach(var system in m_architecture.m_initSystemList)
             {
                 system.InitSystem();
             }
-            m_Architecture.m_InitSystemList.Clear();
+            m_architecture.m_initSystemList.Clear();
 
-            m_Architecture.mInit = true;
+            m_architecture.m_init = true;
         }
 
         protected abstract void Init();
 
-        private readonly IOCContainer m_IOCContainer = new IOCContainer();
-        private readonly EventSystem m_EventSystem = new EventSystem();
+        private readonly IOCContainer m_iocContainer = new IOCContainer();
+        private readonly EventSystem m_eventSystem = new EventSystem();
 
         /// <summary>
         /// 是否已经初始化
         /// </summary>
-        private bool mInit = false;
+        private bool m_init = false;
 
-        private readonly List<IModel> m_InitModelList = new List<IModel>();
-        private readonly List<ISystem> m_InitSystemList = new List<ISystem>();
+        private readonly List<IModel> m_initModelList = new List<IModel>();
+        private readonly List<ISystem> m_initSystemList = new List<ISystem>();
 
         private void UnRegister<TInstance>() where TInstance : class
         {
-            var instance = m_IOCContainer.Get<TInstance>();
+            var instance = m_iocContainer.Get<TInstance>();
             if (instance != null)
             {
                 (instance as IDestory)?.Destroy();
-                m_IOCContainer.UnRegister<TInstance>();
+                m_iocContainer.UnRegister<TInstance>();
             }
         }
 
@@ -85,14 +83,14 @@ namespace Framework
         {
             UnRegister<TModel>();
             model.SetArchiecture(this);
-            m_IOCContainer.Register(model);
-            if (mInit)
+            m_iocContainer.Register(model);
+            if (m_init)
             {
                 model.InitMode();
             }
             else
             {
-                m_InitModelList.Add(model);
+                m_initModelList.Add(model);
             }
         }
 
@@ -100,14 +98,14 @@ namespace Framework
         {
             UnRegister<TSystem>();
             system.SetArchiecture(this);
-            m_IOCContainer.Register(system);
-            if (mInit)
+            m_iocContainer.Register(system);
+            if (m_init)
             {
                 system.InitSystem();
             }
             else
             {
-                m_InitSystemList.Add(system);
+                m_initSystemList.Add(system);
             }
         }
 
@@ -115,22 +113,22 @@ namespace Framework
         {
             UnRegister<TUtility>();
             utility.SetArchiecture(this);
-            m_IOCContainer.Register(utility);
+            m_iocContainer.Register(utility);
         }
 
         public TSystem GetSystem<TSystem>() where TSystem : class, ISystem
         {
-            return m_IOCContainer.Get<TSystem>();
+            return m_iocContainer.Get<TSystem>();
         }
 
         public TModel GetModel<TModel>() where TModel : class, IModel
         {
-            return m_IOCContainer.Get<TModel>();
+            return m_iocContainer.Get<TModel>();
         }
 
         public TUtility GetUtility<TUtility>() where TUtility : class, IUtility
         {
-            return m_IOCContainer.Get<TUtility>();
+            return m_iocContainer.Get<TUtility>();
         }
 
         public virtual void SendCommand<TCommand>() where TCommand : ICommand, new()
@@ -151,22 +149,22 @@ namespace Framework
 
         public virtual void SendEvent<TEvent>() where TEvent : new()
         {
-            m_EventSystem.Send<TEvent>();
+            m_eventSystem.Send<TEvent>();
         }
 
         public virtual void SendEvent<TEvent>(in TEvent @event)
         {
-            m_EventSystem.Send(in @event);
+            m_eventSystem.Send(in @event);
         }
 
         public IUnRegister RegisterEvent<TEvent>(IEventSystem.OnEventHandler<TEvent> onEvent)
         {
-            return m_EventSystem.Register(onEvent);
+            return m_eventSystem.Register(onEvent);
         }
 
         public void UnRegisterEvent<TEvent>(IEventSystem.OnEventHandler<TEvent> onEvent)
         {
-            m_EventSystem.UnRegister(onEvent);
+            m_eventSystem.UnRegister(onEvent);
         }
     }
 }
