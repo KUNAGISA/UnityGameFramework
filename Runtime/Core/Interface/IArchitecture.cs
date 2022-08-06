@@ -2,8 +2,15 @@
 
 namespace Framework
 {
-    public interface IArchitecture : IGetModel, IGetSystem, IGetUtility, ISendCommand, ISendEvent, ISendQuery
+    public interface IArchitecture : IGetManager, IGetModel, IGetSystem, IGetUtility, ISendCommand, ISendEvent, ISendQuery
     {
+        /// <summary>
+        /// 注册或替换新Manager
+        /// </summary>
+        /// <typeparam name="T">Manager Class</typeparam>
+        /// <param name="manager">Manager Instance</param>
+        void RegisterManager<T>(T manager) where T : class, IManager;
+
         /// <summary>
         /// 注册或替换新系统模块
         /// </summary>
@@ -31,13 +38,15 @@ namespace Framework
         /// <typeparam name="T">事件</typeparam>
         /// <param name="onEvent">事件回调</param>
         /// <returns>注册句柄</returns>
-        IUnRegister RegisterEvent<T>(IEventSystem.OnEventHandler<T> onEvent);
+        IUnRegister RegisterEvent<T>(IEventSystem.OnEventHandler<T> onEvent) where T : struct;
 
         /// <summary>
         /// 注销事件监听
         /// </summary>
         /// <typeparam name="T">事件</typeparam>
         /// <param name="onEvent">回调</param>
-        void UnRegisterEvent<T>(IEventSystem.OnEventHandler<T> onEvent);
+        void UnRegisterEvent<T>(IEventSystem.OnEventHandler<T> onEvent) where T : struct;
+
+        void Inject(object @object);
     }
 }

@@ -6,14 +6,14 @@
 
     public static class CanSendCommandExtension
     {
-        public static void SendCommand<T>(this ICanSendCommand self) where T : ICommand, new()
+        public static void SendCommand<T>(this ICanSendCommand self) where T : struct, ICommand
         {
             self.GetArchitecture().SendCommand<T>();
         }
 
-        public static void SendCommand<T>(this ICanSendCommand self, in T @event) where T : ICommand
+        public static void SendCommand<T>(this ICanSendCommand self, in T command) where T : struct, ICommand
         {
-            self.GetArchitecture().SendCommand(@event);
+            self.GetArchitecture().SendCommand(command);
         }
     }
 }

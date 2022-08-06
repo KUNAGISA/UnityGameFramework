@@ -7,12 +7,12 @@ namespace Framework
 
     public static class CanSendEventExection
     {
-        public static void SendEvent<T>(this ICanSendEvent self) where T : new()
+        public static void SendEvent<TEvent>(this ICanSendEvent self) where TEvent : struct
         {
-            self.GetArchitecture().SendEvent<T>();
+            self.GetArchitecture().SendEvent<TEvent>();
         }
 
-        public static void SendEvent<T>(this ICanSendEvent self, in T e)
+        public static void SendEvent<TEvent>(this ICanSendEvent self, in TEvent e) where TEvent : struct
         {
             self.GetArchitecture().SendEvent(e);
         }

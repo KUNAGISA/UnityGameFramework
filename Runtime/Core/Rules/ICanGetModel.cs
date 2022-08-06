@@ -7,9 +7,9 @@ namespace Framework
 
     public static class CanGetModelExtension
     {
-        static public T GetModel<T>(this ICanGetModel self) where T : class, IModel
+        static public TModel GetModel<TModel>(this ICanGetModel self) where TModel : class, IModel
         {
-            return self.GetArchitecture().GetModel<T>();
+            return self.GetArchitecture().GetModel<TModel>();
         }    
     }
 }

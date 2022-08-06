@@ -7,9 +7,9 @@ namespace Framework
 
     public static class CanGetSystemExtension
     {
-        public static T GetSystem<T>(this ICanGetSystem self) where T : class, ISystem
+        public static TSystem GetSystem<TSystem>(this ICanGetSystem self) where TSystem : class, ISystem
         {
-            return self.GetArchitecture().GetSystem<T>();
+            return self.GetArchitecture().GetSystem<TSystem>();
         }
     }
 }

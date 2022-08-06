@@ -6,9 +6,9 @@
 
     public static class CanGetUtilityExtension
     {
-        public static T GetUtility<T>(this ICanGetUtility self) where T : class, IUtility
+        public static TUtility GetUtility<TUtility>(this ICanGetUtility self) where TUtility : class, IUtility
         {
-            return self.GetArchitecture().GetUtility<T>();
+            return self.GetArchitecture().GetUtility<TUtility>();
         }
     }
 }

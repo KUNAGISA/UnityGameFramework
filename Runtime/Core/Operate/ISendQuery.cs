@@ -7,6 +7,6 @@
         /// </summary>
         /// <param name="query">查询指令</param>
         /// <returns>查询结果</returns>
-        TResult SendQuery<TResult>(in IQuery<TResult> query);
+        TResult SendQuery<TResult>(IQuery<TResult> query);
     }
 }
