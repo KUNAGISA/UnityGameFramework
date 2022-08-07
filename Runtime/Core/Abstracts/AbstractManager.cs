@@ -1,7 +1,12 @@
-﻿using Framework.Internal.Operate;
+﻿using Framework.Internals;
 
 namespace Framework
 {
+    public interface IManager : IInit, IDestory, ICanSetArchiecture, ICanGetModel, ICanGetSystem, ICanGetManager, ICanGetUtility, ICanSendCommand, ICanRegisterEvent, ICanSendQuery
+    {
+
+    }
+
     public abstract class AbstractManager : IManager
     {
         private IArchitecture m_architecure = null;
@@ -10,12 +15,12 @@ namespace Framework
 
         void ICanSetArchiecture.SetArchiecture(IArchitecture architecture) => m_architecure = architecture;
 
-        void IManager.InitManager() => OnInitManager();
+        void IInit.Init() => OnInit();
 
-        void IDestory.Destroy() => OnDestroyManager();
+        void IDestory.Destroy() => OnDestroy();
 
-        protected abstract void OnInitManager();
+        protected abstract void OnInit();
 
-        protected abstract void OnDestroyManager();
+        protected abstract void OnDestroy();
     }
 }

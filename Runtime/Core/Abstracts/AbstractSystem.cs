@@ -1,24 +1,26 @@
-﻿using Framework.Internal.Operate;
+﻿using Framework.Internals;
 
 namespace Framework
 {
-    /// <summary>
-    /// 系统逻辑模块基类
-    /// </summary>
+    public interface ISystem : IInit, IDestory, IBelongArchiecture, ICanSetArchiecture, ICanGetUtility, ICanGetModel, ICanRegisterEvent, ICanSendEvent, ICanSendQuery, ICanGetSystem
+    {
+
+    }
+
     public abstract class AbstractSystem : ISystem
     {
         private IArchitecture m_architecture;
 
-        void ISystem.InitSystem() => OnInitSystem();
+        void IInit.Init() => OnInit();
 
-        void IDestory.Destroy() => OnDestorySystem();
+        void IDestory.Destroy() => OnDestroy();
 
         IArchitecture IBelongArchiecture.GetArchitecture() => m_architecture;
 
         void ICanSetArchiecture.SetArchiecture(IArchitecture architecture) => m_architecture = architecture;
 
-        abstract protected void OnInitSystem();
+        abstract protected void OnInit();
 
-        abstract protected void OnDestorySystem();
+        abstract protected void OnDestroy();
     }
 }

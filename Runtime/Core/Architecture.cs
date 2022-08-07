@@ -1,17 +1,29 @@
-using Framework.Internal.Operate;
+using Framework.Internals;
 using System.Collections.Generic;
 
 namespace Framework
 {
-    /// <summary>
-    /// 框架基类
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
+    public interface IArchitecture : IGetManager, IGetModel, IGetSystem, IGetUtility, ISendEvent, ISendCommand, ISendQuery
+    {
+        void RegisterManager<T>(T manager) where T : class, IManager;
+
+        void RegisterSystem<T>(T system) where T : class, ISystem;
+
+        void RegisterModel<T>(T model) where T : class, IModel;
+
+        void RegisterUtility<T>(T utility) where T : class, IUtility;
+
+        IUnRegister RegisterEvent<T>(IEventSystem.OnEventHandler<T> onEvent) where T : struct;
+
+        void UnRegisterEvent<T>(IEventSystem.OnEventHandler<T> onEvent) where T : struct;
+
+        void Inject(object @object);
+    }
+
     public abstract class Architecture<T> : IArchitecture, ICommandArchiecture, IQueryArchitecture where T : Architecture<T>, IArchitecture, new()
     {
         private static T m_architecture = null;
-
-        static public IArchitecture Instance
+        public static IArchitecture Instance
         {
             get 
             {
@@ -20,9 +32,26 @@ namespace Framework
             }
         }
 
-        static public bool IsValid => m_architecture != null;
+        public static bool IsValid => m_architecture != null;
 
-        static public void DistoryInstance()
+        public static void MakeSureArchitecture()
+        {
+            if (m_architecture != null)
+            {
+                return;
+            }
+
+            m_architecture = new T();
+            m_architecture.Init();
+
+            m_architecture.OnDealInitList(m_architecture.m_initModelList);
+            m_architecture.OnDealInitList(m_architecture.m_initSystemList);
+            m_architecture.OnDealInitList(m_architecture.m_initManagerList);
+
+            m_architecture.m_init = true;
+        }
+
+        public static void DistoryInstance()
         {
             if (m_architecture == null)
             {
@@ -33,66 +62,14 @@ namespace Framework
             m_architecture = null;
         }
 
-        static void MakeSureArchitecture()
-        {
-            if (m_architecture != null)
-            {
-                return;
-            }
-
-            m_architecture = new T();
-            m_architecture.Init();
-
-            foreach(var model in m_architecture.m_initModelList)
-            {
-                m_architecture.Inject(model);
-                model.InitMode();
-            }
-            m_architecture.m_initModelList.Clear();
-
-            foreach(var system in m_architecture.m_initSystemList)
-            {
-                m_architecture.Inject(system);
-                system.InitSystem();
-            }
-            m_architecture.m_initSystemList.Clear();
-
-            foreach(var manager in m_architecture.m_initManagerList)
-            {
-                m_architecture.Inject(manager);
-                manager.InitManager();
-            }
-            m_architecture.m_initManagerList.Clear();
-
-            m_architecture.m_init = true;
-        }
-
         private readonly IOCContainer m_iocContainer = new IOCContainer();
         private readonly EventSystem m_eventSystem = new EventSystem();
 
         private bool m_init = false;
 
-        private readonly List<IModel> m_initModelList = new List<IModel>();
-        private readonly List<ISystem> m_initSystemList = new List<ISystem>();
-        private readonly List<IManager> m_initManagerList = new List<IManager>();
-
-        public void RegisterManager<TManager>(TManager manager) where TManager : class, IManager
-        {
-            UnRegisterInstance<TManager>();
-
-            manager.SetArchiecture(this);
-            m_iocContainer.Register(manager);
-
-            if (m_init)
-            {
-                m_iocContainer.Inject(manager);
-                manager.InitManager();
-            }
-            else
-            {
-                m_initManagerList.Add(manager);
-            }
-        }
+        private readonly List<IInit> m_initModelList = new List<IInit>();
+        private readonly List<IInit> m_initSystemList = new List<IInit>();
+        private readonly List<IInit> m_initManagerList = new List<IInit>();
 
         public void RegisterModel<TModel>(TModel model) where TModel : class, IModel
         {
@@ -100,16 +77,7 @@ namespace Framework
 
             model.SetArchiecture(this);
             m_iocContainer.Register(model);
-
-            if (m_init)
-            {
-                m_iocContainer.Inject(model);
-                model.InitMode();
-            }
-            else
-            {
-                m_initModelList.Add(model);
-            }
+            OnInitWhenRegister(model, m_initModelList);
         }
 
         public void RegisterSystem<TSystem>(TSystem system) where TSystem : class, ISystem
@@ -118,16 +86,16 @@ namespace Framework
 
             system.SetArchiecture(this);
             m_iocContainer.Register(system);
+            OnInitWhenRegister(system, m_initSystemList);
+        }
 
-            if (m_init)
-            {
-                m_iocContainer.Inject(system);
-                system.InitSystem();
-            }
-            else
-            {
-                m_initSystemList.Add(system);
-            }
+        public void RegisterManager<TManager>(TManager manager) where TManager : class, IManager
+        {
+            UnRegisterInstance<TManager>();
+
+            manager.SetArchiecture(this);
+            m_iocContainer.Register(manager);
+            OnInitWhenRegister(manager, m_initManagerList);
         }
 
         public void RegisterUtility<TUtility>(TUtility utility) where TUtility : class, IUtility
@@ -157,27 +125,32 @@ namespace Framework
             return m_iocContainer.Get<TUtility>();
         }
 
-        public virtual void SendCommand<TCommand>() where TCommand : ICommand, new()
+        public virtual void SendCommand<TCommand>() where TCommand : struct, ICommand
         {
-            SendCommand(new TCommand());
+            new TCommand().Execute(this);
         }
 
-        public virtual void SendCommand<TCommand>(in TCommand command) where TCommand : ICommand
+        public virtual void SendCommand<TCommand>(in TCommand command) where TCommand : struct, ICommand
         {
             command.Execute(this);
         }
 
-        public TResult SendQuery<TResult>(IQuery<TResult> query)
+        public void SendQuery<TQuery, TResult>(out TResult result) where TQuery : struct, IQuery<TResult>
         {
-            return query.Do(this);
+            result = new TQuery().Do(this);
         }
 
-        public virtual void SendEvent<TEvent>() where TEvent : struct
+        public void SendQuery<TQuery, TResult>(in TQuery query, out TResult result) where TQuery : struct, IQuery<TResult>
+        {
+            result = query.Do(this);
+        }
+
+        public void SendEvent<TEvent>() where TEvent : struct
         {
             m_eventSystem.Send<TEvent>();
         }
 
-        public virtual void SendEvent<TEvent>(in TEvent @event) where TEvent : struct
+        public void SendEvent<TEvent>(in TEvent @event) where TEvent : struct
         {
             m_eventSystem.Send(in @event);
         }
@@ -192,7 +165,7 @@ namespace Framework
             m_eventSystem.UnRegister(onEvent);
         }
 
-        void IArchitecture.Inject(object @object)
+        public void Inject(object @object)
         {
             m_iocContainer.Inject(@object);
         }
@@ -205,6 +178,29 @@ namespace Framework
                 (instance as IDestory)?.Destroy();
                 m_iocContainer.UnRegister<TInstance>();
             }
+        }
+
+        private void OnInitWhenRegister(IInit instance, in List<IInit> initList)
+        {
+            if (m_init)
+            {
+                Inject(instance);
+                instance.Init();
+            }
+            else
+            {
+                initList.Add(instance);
+            }
+        }
+
+        private void OnDealInitList(in List<IInit> initList)
+        {
+            foreach(var instance in initList)
+            {
+                Inject(instance);
+                instance.Init();
+            }
+            initList.Clear();
         }
 
         protected abstract void Init();

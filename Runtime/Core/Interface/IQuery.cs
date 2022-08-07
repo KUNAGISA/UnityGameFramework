@@ -1,8 +1,8 @@
-﻿using Framework.Internal.Operate;
+﻿using Framework.Internals;
 
 namespace Framework
 {
-    public interface IQueryArchitecture : IGetModel, IGetSystem, IGetUtility, ISendQuery
+    public interface IQueryArchitecture : IGetModel, IGetUtility, ISendQuery
     {
 
     }

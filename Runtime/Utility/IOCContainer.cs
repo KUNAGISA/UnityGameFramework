@@ -62,8 +62,8 @@ namespace Framework
 
         public T Get<T>() where T : class
         {
-            var key = typeof(T);
-            if (m_instances.TryGetValue(key, out var instance))
+            var type = typeof(T);
+            if (m_instances.TryGetValue(type, out var instance))
             {
                 return instance as T;
             }

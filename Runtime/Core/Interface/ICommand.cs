@@ -1,8 +1,8 @@
-﻿using Framework.Internal.Operate;
+﻿using Framework.Internals;
 
 namespace Framework
 {
-    public interface ICommandArchiecture : IGetModel, IGetSystem, IGetUtility, ISendCommand, ISendQuery, ISendEvent
+    public interface ICommandArchiecture : IGetManager, IGetModel, IGetSystem, IGetUtility, ISendEvent, ISendCommand, ISendQuery
     {
 
     }

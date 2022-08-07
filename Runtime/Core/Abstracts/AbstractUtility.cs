@@ -1,10 +1,12 @@
-﻿using Framework.Internal.Operate;
+﻿using Framework.Internals;
 
 namespace Framework
 {
-    /// <summary>
-    /// 工具基类
-    /// </summary>
+    public interface IUtility : IDestory, IBelongArchiecture, ICanSetArchiecture
+    {
+
+    }
+
     public abstract class AbstractUtility : IUtility
     {
         private IArchitecture m_architecture;
