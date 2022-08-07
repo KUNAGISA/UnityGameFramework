@@ -2,7 +2,7 @@
 
 namespace Framework
 {
-    public interface ISystem : IInit, IDestory, IBelongArchiecture, ICanSetArchiecture, ICanGetUtility, ICanGetModel, ICanRegisterEvent, ICanSendEvent, ICanSendQuery, ICanGetSystem
+    public interface ISystem : IInit, IDestory, IBelongArchiecture, ICanSetArchiecture, ICanGetUtility, ICanGetModel, ICanRegisterEvent, ICanSendEvent, ICanSendQuery
     {
 
     }

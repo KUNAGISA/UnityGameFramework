@@ -2,7 +2,7 @@
 
 namespace Framework
 {
-    public interface IUtility : IDestory, IBelongArchiecture, ICanSetArchiecture
+    public interface IUtility : IDestory, IBelongArchiecture, ICanSetArchiecture, ICanSendEvent
     {
 
     }

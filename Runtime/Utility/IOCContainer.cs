@@ -6,7 +6,8 @@ namespace Framework
 {
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
     public class InjectAttribute : Attribute
-    { 
+    {
+
     }
 
     public class IOCContainer
