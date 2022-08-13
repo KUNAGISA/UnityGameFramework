@@ -10,8 +10,6 @@
         void SetArchiecture(IArchitecture architecture);
     }
 
-    public interface ICanGetManager : IBelongArchiecture { }
-
     public interface ICanGetModel : IBelongArchiecture { }
 
     public interface ICanGetSystem : IBelongArchiecture { }
@@ -28,11 +26,6 @@
 
     public static class FrameworkRulesExection
     {
-        public static TManager GetManager<TManager>(this ICanGetManager self) where TManager : class, IManager
-        {
-            return self.GetArchitecture().GetManager<TManager>();
-        }
-
         public static TSystem GetSystem<TSystem>(this ICanGetSystem self) where TSystem : class, ISystem
         {
             return self.GetArchitecture().GetSystem<TSystem>();
@@ -78,9 +71,9 @@
             self.GetArchitecture().SendCommand(command);
         }
 
-        static public void SendQuery<TQuery, TResult>(this ICanSendQuery self, TQuery query, out TResult result) where TQuery : struct, IQuery<TResult>
+        public static void SendQuery<TQuery, TResult>(this ICanSendQuery self, TQuery query, out TResult result) where TQuery : struct, IQuery<TResult>
         {
-            self.GetArchitecture().SendQuery<TQuery, TResult>(query, out result);
+            self.GetArchitecture().SendQuery(query, out result);
         }
     }
 }

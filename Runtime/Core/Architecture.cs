@@ -3,10 +3,8 @@ using System.Collections.Generic;
 
 namespace Framework
 {
-    public interface IArchitecture : IGetManager, IGetModel, IGetSystem, IGetUtility, ISendEvent, ISendCommand, ISendQuery
+    public interface IArchitecture : IGetModel, IGetSystem, IGetUtility, ISendEvent, ISendCommand, ISendQuery
     {
-        void RegisterManager<T>(T manager) where T : class, IManager;
-
         void RegisterSystem<T>(T system) where T : class, ISystem;
 
         void RegisterModel<T>(T model) where T : class, IModel;
@@ -25,9 +23,12 @@ namespace Framework
         private static T m_architecture = null;
         public static IArchitecture Instance
         {
-            get 
+            get
             {
-                MakeSureArchitecture();
+                if (m_architecture != null)
+                {
+                    MakeSureArchitecture();
+                }
                 return m_architecture;
             }
         }
@@ -42,16 +43,15 @@ namespace Framework
             }
 
             m_architecture = new T();
-            m_architecture.Init();
+            m_architecture.OnInit();
 
             m_architecture.OnDealInitList(m_architecture.m_initModelList);
             m_architecture.OnDealInitList(m_architecture.m_initSystemList);
-            m_architecture.OnDealInitList(m_architecture.m_initManagerList);
 
             m_architecture.m_init = true;
         }
 
-        public static void DistoryInstance()
+        public static void DestroyInstance()
         {
             if (m_architecture == null)
             {
@@ -69,7 +69,8 @@ namespace Framework
 
         private readonly List<IInit> m_initModelList = new List<IInit>();
         private readonly List<IInit> m_initSystemList = new List<IInit>();
-        private readonly List<IInit> m_initManagerList = new List<IInit>();
+
+        protected Architecture() { }
 
         public void RegisterModel<TModel>(TModel model) where TModel : class, IModel
         {
@@ -89,25 +90,11 @@ namespace Framework
             OnInitWhenRegister(system, m_initSystemList);
         }
 
-        public void RegisterManager<TManager>(TManager manager) where TManager : class, IManager
-        {
-            UnRegisterInstance<TManager>();
-
-            manager.SetArchiecture(this);
-            m_iocContainer.Register(manager);
-            OnInitWhenRegister(manager, m_initManagerList);
-        }
-
         public void RegisterUtility<TUtility>(TUtility utility) where TUtility : class, IUtility
         {
             UnRegisterInstance<TUtility>();
             utility.SetArchiecture(this);
             m_iocContainer.Register(utility);
-        }
-
-        public TManager GetManager<TManager>() where TManager : class, IManager
-        {
-            return m_iocContainer.Get<TManager>();
         }
 
         public TSystem GetSystem<TSystem>() where TSystem : class, ISystem
@@ -203,6 +190,8 @@ namespace Framework
             initList.Clear();
         }
 
-        protected abstract void Init();
+        protected abstract void OnInit();
+
+        protected abstract void OnDestroy();
     }
 }

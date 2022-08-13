@@ -10,11 +10,6 @@
         internal void Destroy();
     }
 
-    public interface IGetManager
-    {
-        TManager GetManager<TManager>() where TManager : class, IManager;
-    }
-
     public interface IGetSystem
     {
         TSystem GetSystem<TSystem>() where TSystem : class, ISystem;

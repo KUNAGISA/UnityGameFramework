@@ -2,7 +2,7 @@
 
 namespace Framework
 {
-    public interface ICommandArchiecture : IGetManager, IGetModel, IGetSystem, IGetUtility, ISendEvent, ISendCommand, ISendQuery
+    public interface ICommandArchiecture : IGetModel, IGetSystem, IGetUtility, ISendEvent, ISendCommand, ISendQuery
     {
 
     }
