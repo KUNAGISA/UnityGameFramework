@@ -2,7 +2,7 @@
 
 namespace Framework
 {
-    public interface IQueryArchitecture : IGetModel, IGetUtility, ISendQuery
+    public interface IQueryArchitecture : IGetSystem, IGetModel, IGetUtility, ISendQuery
     {
 
     }
