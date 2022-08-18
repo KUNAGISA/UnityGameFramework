@@ -1,68 +1,55 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Framework
 {
-    public class BindableRefProperty<T> where T : class
+    public interface IReadonlyBindableProperty<T>
     {
-        private event Action<T> m_onValueChanged;
+        T value { get; }
 
-        private T m_value = null;
-        public T value
-        {
-            get => m_value;
+        IUnRegister Register(Action<T> onValueChanged);
 
-            set
-            {
-                if (m_value != value)
-                {
-                    m_value = value;
-                    m_onValueChanged?.Invoke(m_value);
-                }
-            }
-        }
+        IUnRegister RegisterWithInitValue(Action<T> onValueChanged);
 
-        public BindableRefProperty(T value = null) => m_value = value;
-
-        public IUnRegister Register(Action<T> onValueChanged)
-        {
-            m_onValueChanged += onValueChanged;
-            return new CustomUnRegister<Action<T>>(UnRegister, onValueChanged);
-        }
-
-        public IUnRegister RegisterWithInitValue(Action<T> onValueChanged)
-        {
-            onValueChanged(m_value);
-            return Register(onValueChanged);
-        }
-
-        public void UnRegister(Action<T> onValueChanged)
-        {
-            m_onValueChanged -= onValueChanged;
-        }
-
-        public static implicit operator T (BindableRefProperty<T> property) => property.m_value;
+        void UnRegister(Action<T> onValueChanged);
     }
 
-    public class BindableProperty<T> where T : struct, IEquatable<T>
+    public interface IBindableProperty<T> : IReadonlyBindableProperty<T>
     {
+        new T value { get; set; }
+
+        void SetValueSilently(T value);
+    }
+
+    public class BindableProperty<T> : IBindableProperty<T>
+    {
+        private static readonly IEqualityComparer<T> comparer = EqualityComparer<T>.Default;
+
         private event Action<T> m_onValueChanged;
 
-        private T m_value = default(T);
+        private T m_value = default;
         public T value
         {
-            get => m_value;
-
+            get => GetValue();
             set
             {
-                if (!m_value.Equals(value))
+                if (!comparer.Equals(value, m_value))
                 {
-                    m_value = value;
+                    SetValue(value);
                     m_onValueChanged?.Invoke(m_value);
                 }
             }
         }
 
-        public BindableProperty(T value = default(T)) => m_value = value;
+        public BindableProperty(T value = default)
+        {
+            m_value = value;
+        }
+
+        public void SetValueSilently(T value)
+        {
+            m_value = value;
+        }
 
         public IUnRegister Register(Action<T> onValueChanged)
         {
@@ -81,6 +68,19 @@ namespace Framework
             m_onValueChanged -= onValueChanged;
         }
 
-        public static implicit operator T (BindableProperty<T> property) => property.m_value;
+        protected virtual T GetValue()
+        {
+            return m_value;
+        }
+
+        protected virtual void SetValue(T value)
+        {
+            m_value = value;
+        }
+
+        public static implicit operator T (BindableProperty<T> property)
+        {
+            return property.value;
+        }
     }
 }
