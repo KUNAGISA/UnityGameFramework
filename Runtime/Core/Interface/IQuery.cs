@@ -2,13 +2,18 @@
 
 namespace Framework
 {
-    public interface IQueryArchitecture : IGetSystem, IGetModel, IGetUtility, ISendQuery
+    public interface IQuery
     {
+        protected internal interface IAccess : IGetSystem, IGetModel, IGetUtility, ISendQuery
+        {
 
+        }
+
+        protected internal object Do(IAccess access);
     }
 
-    public interface IQuery<TResult>
+    public interface IQuery<TResult> : IQuery
     {
-        TResult Do(IQueryArchitecture architecture);
+        new protected internal TResult Do(IAccess architecture);
     }
 }

@@ -18,7 +18,7 @@ namespace Framework
         void Inject(object @object);
     }
 
-    public abstract class Architecture<T> : IArchitecture, ICommandArchiecture, IQueryArchitecture where T : Architecture<T>, IArchitecture, new()
+    public abstract class Architecture<T> : IArchitecture, ICommand.IAccess, IQuery.IAccess where T : Architecture<T>, IArchitecture, new()
     {
         private static T m_architecture = null;
         public static IArchitecture Instance

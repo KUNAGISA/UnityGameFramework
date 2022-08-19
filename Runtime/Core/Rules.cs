@@ -2,7 +2,7 @@
 {
     public interface IBelongArchiecture
     {
-        IArchitecture GetArchitecture();
+        protected internal IArchitecture GetArchitecture();
     }
 
     public interface ICanSetArchiecture
