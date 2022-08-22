@@ -1,19 +1,22 @@
 using Framework.Internals;
+using System;
 using System.Collections.Generic;
 
 namespace Framework
 {
     public interface IArchitecture : IGetModel, IGetSystem, IGetUtility, ISendEvent, ISendCommand, ISendQuery
     {
+        event Action onArchitectureDestroy;
+
         void RegisterSystem<T>(T system) where T : class, ISystem;
 
         void RegisterModel<T>(T model) where T : class, IModel;
 
         void RegisterUtility<T>(T utility) where T : class, IUtility;
 
-        IUnRegister RegisterEvent<T>(IEventSystem.OnEventHandler<T> onEvent) where T : struct;
+        IUnRegister RegisterEvent<T>(ValueAction<T> onEvent) where T : struct;
 
-        void UnRegisterEvent<T>(IEventSystem.OnEventHandler<T> onEvent) where T : struct;
+        void UnRegisterEvent<T>(ValueAction<T> onEvent) where T : struct;
 
         void Inject(object @object);
     }
@@ -58,15 +61,18 @@ namespace Framework
                 return;
             }
 
-            m_architecture.m_iocContainer.Each((IDestory instance) => instance.Destroy());
+            m_architecture.onArchitectureDestroy();
+            m_architecture.onArchitectureDestroy = null;
+            m_architecture.OnDestroy();
             m_architecture = null;
         }
 
+        public event Action onArchitectureDestroy;
+        
         private readonly IOCContainer m_iocContainer = new IOCContainer();
-        private readonly EventSystem m_eventSystem = new EventSystem();
+        private readonly TypeEventSystem m_eventSystem = new TypeEventSystem();
 
         private bool m_init = false;
-
         private readonly List<IInit> m_initModelList = new List<IInit>();
         private readonly List<IInit> m_initSystemList = new List<IInit>();
 
@@ -74,26 +80,45 @@ namespace Framework
 
         public void RegisterModel<TModel>(TModel model) where TModel : class, IModel
         {
-            UnRegisterInstance<TModel>();
-
+            if (m_iocContainer.TryGet<TModel>(out var removed))
+            {
+                m_iocContainer.UnRegister<TModel>();
+                onArchitectureDestroy -= removed.Destroy;
+                removed.Destroy();
+            }
+            
             model.SetArchiecture(this);
             m_iocContainer.Register(model);
+            onArchitectureDestroy += model.Destroy;
             OnInitWhenRegister(model, m_initModelList);
         }
 
         public void RegisterSystem<TSystem>(TSystem system) where TSystem : class, ISystem
         {
-            UnRegisterInstance<TSystem>();
+            if (m_iocContainer.TryGet<TSystem>(out var removed))
+            {
+                m_iocContainer.UnRegister<TSystem>();
+                onArchitectureDestroy -= removed.Destroy;
+                removed.Destroy();
+            }
 
             system.SetArchiecture(this);
             m_iocContainer.Register(system);
+            onArchitectureDestroy += system.Destroy;
             OnInitWhenRegister(system, m_initSystemList);
         }
 
         public void RegisterUtility<TUtility>(TUtility utility) where TUtility : class, IUtility
         {
-            UnRegisterInstance<TUtility>();
+            if (m_iocContainer.TryGet<TUtility>(out var removed))
+            {
+                m_iocContainer.UnRegister<TUtility>();
+                onArchitectureDestroy -= removed.Destroy;
+                removed.Destroy();
+            }
+
             utility.SetArchiecture(this);
+            onArchitectureDestroy += utility.Destroy;
             m_iocContainer.Register(utility);
         }
 
@@ -142,12 +167,12 @@ namespace Framework
             m_eventSystem.Send(in @event);
         }
 
-        public IUnRegister RegisterEvent<TEvent>(IEventSystem.OnEventHandler<TEvent> onEvent) where TEvent : struct
+        public IUnRegister RegisterEvent<TEvent>(ValueAction<TEvent> onEvent) where TEvent : struct
         {
             return m_eventSystem.Register(onEvent);
         }
 
-        public void UnRegisterEvent<TEvent>(IEventSystem.OnEventHandler<TEvent> onEvent) where TEvent : struct
+        public void UnRegisterEvent<TEvent>(ValueAction<TEvent> onEvent) where TEvent : struct
         {
             m_eventSystem.UnRegister(onEvent);
         }
@@ -157,17 +182,7 @@ namespace Framework
             m_iocContainer.Inject(@object);
         }
 
-        private void UnRegisterInstance<TInstance>() where TInstance : class
-        {
-            var instance = m_iocContainer.Get<TInstance>();
-            if (instance != null)
-            {
-                (instance as IDestory)?.Destroy();
-                m_iocContainer.UnRegister<TInstance>();
-            }
-        }
-
-        private void OnInitWhenRegister(IInit instance, in List<IInit> initList)
+        private void OnInitWhenRegister(IInit instance, IList<IInit> initList)
         {
             if (m_init)
             {
@@ -180,7 +195,7 @@ namespace Framework
             }
         }
 
-        private void OnDealInitList(in List<IInit> initList)
+        private void OnDealInitList(IList<IInit> initList)
         {
             foreach(var instance in initList)
             {

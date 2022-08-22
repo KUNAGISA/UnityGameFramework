@@ -14,6 +14,8 @@ namespace Framework
 
     public interface IQuery<TResult> : IQuery
     {
+        object IQuery.Do(IAccess access) => Do(access);
+
         new protected internal TResult Do(IAccess architecture);
     }
 }

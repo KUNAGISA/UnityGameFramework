@@ -71,24 +71,10 @@ namespace Framework
             return null;
         }
 
-        public void Each(Action<Type, object> handler)
+        public bool TryGet<T>(out T result) where T : class
         {
-            foreach(var pairs in m_instances)
-            {
-                handler(pairs.Key, pairs.Value);
-            }
-        }
-
-        public void Each<T>(Action<T> handler) where T : class
-        {
-            foreach (var pairs in m_instances)
-            {
-                var instance = pairs.Value as T;
-                if (instance != null)
-                {
-                    handler(instance);
-                }
-            }
+            result = Get<T>();
+            return result != null;
         }
     }
 }
