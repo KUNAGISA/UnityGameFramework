@@ -76,5 +76,17 @@ namespace Framework
             result = Get<T>();
             return result != null;
         }
+
+        public void ForEach<T>(Action<T> action)
+        {
+            foreach(var pair in m_instances)
+            {
+                var instance = pair.Value;
+                if (instance is T)
+                {
+                    action((T)instance);
+                }
+            }
+        }
     }
 }

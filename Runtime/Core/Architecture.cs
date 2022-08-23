@@ -6,8 +6,6 @@ namespace Framework
 {
     public interface IArchitecture : IGetModel, IGetSystem, IGetUtility, ISendEvent, ISendCommand, ISendQuery
     {
-        event Action onArchitectureDestroy;
-
         void RegisterSystem<T>(T system) where T : class, ISystem;
 
         void RegisterModel<T>(T model) where T : class, IModel;
@@ -28,7 +26,7 @@ namespace Framework
         {
             get
             {
-                if (m_architecture != null)
+                if (m_architecture == null)
                 {
                     MakeSureArchitecture();
                 }
@@ -61,14 +59,11 @@ namespace Framework
                 return;
             }
 
-            m_architecture.onArchitectureDestroy();
-            m_architecture.onArchitectureDestroy = null;
+            m_architecture.m_iocContainer.ForEach((IDestory instance) => instance.Destroy());
             m_architecture.OnDestroy();
             m_architecture = null;
         }
 
-        public event Action onArchitectureDestroy;
-        
         private readonly IOCContainer m_iocContainer = new IOCContainer();
         private readonly TypeEventSystem m_eventSystem = new TypeEventSystem();
 
@@ -83,13 +78,11 @@ namespace Framework
             if (m_iocContainer.TryGet<TModel>(out var removed))
             {
                 m_iocContainer.UnRegister<TModel>();
-                onArchitectureDestroy -= removed.Destroy;
                 removed.Destroy();
             }
             
             model.SetArchiecture(this);
             m_iocContainer.Register(model);
-            onArchitectureDestroy += model.Destroy;
             OnInitWhenRegister(model, m_initModelList);
         }
 
@@ -98,13 +91,11 @@ namespace Framework
             if (m_iocContainer.TryGet<TSystem>(out var removed))
             {
                 m_iocContainer.UnRegister<TSystem>();
-                onArchitectureDestroy -= removed.Destroy;
                 removed.Destroy();
             }
 
             system.SetArchiecture(this);
             m_iocContainer.Register(system);
-            onArchitectureDestroy += system.Destroy;
             OnInitWhenRegister(system, m_initSystemList);
         }
 
@@ -113,12 +104,10 @@ namespace Framework
             if (m_iocContainer.TryGet<TUtility>(out var removed))
             {
                 m_iocContainer.UnRegister<TUtility>();
-                onArchitectureDestroy -= removed.Destroy;
                 removed.Destroy();
             }
 
             utility.SetArchiecture(this);
-            onArchitectureDestroy += utility.Destroy;
             m_iocContainer.Register(utility);
         }
 
