@@ -12,9 +12,9 @@ namespace Framework
 
         void RegisterUtility<T>(T utility) where T : class, IUtility;
 
-        IUnRegister RegisterEvent<T>(ValueAction<T> onEvent) where T : struct;
+        IUnRegister RegisterEvent<T>(Action<T> onEvent);
 
-        void UnRegisterEvent<T>(ValueAction<T> onEvent) where T : struct;
+        void UnRegisterEvent<T>(Action<T> onEvent);
 
         void Inject(object @object);
     }
@@ -126,42 +126,42 @@ namespace Framework
             return m_iocContainer.Get<TUtility>();
         }
 
-        public virtual void SendCommand<TCommand>() where TCommand : struct, ICommand
+        public virtual void SendCommand<TCommand>() where TCommand : ICommand, new()
         {
             new TCommand().Execute(this);
         }
 
-        public virtual void SendCommand<TCommand>(in TCommand command) where TCommand : struct, ICommand
+        public virtual void SendCommand<TCommand>(TCommand command) where TCommand : ICommand
         {
             command.Execute(this);
         }
 
-        public void SendQuery<TQuery, TResult>(out TResult result) where TQuery : struct, IQuery<TResult>
+        public void SendQuery<TQuery, TResult>(out TResult result) where TQuery : IQuery<TResult>, new()
         {
             result = new TQuery().Do(this);
         }
 
-        public void SendQuery<TQuery, TResult>(in TQuery query, out TResult result) where TQuery : struct, IQuery<TResult>
+        public void SendQuery<TQuery, TResult>(TQuery query, out TResult result) where TQuery : IQuery<TResult>
         {
             result = query.Do(this);
         }
 
-        public void SendEvent<TEvent>() where TEvent : struct
+        public void SendEvent<TEvent>() where TEvent : new()
         {
             m_eventSystem.Send<TEvent>();
         }
 
-        public void SendEvent<TEvent>(in TEvent @event) where TEvent : struct
+        public void SendEvent<TEvent>(TEvent @event)
         {
-            m_eventSystem.Send(in @event);
+            m_eventSystem.Send(@event);
         }
 
-        public IUnRegister RegisterEvent<TEvent>(ValueAction<TEvent> onEvent) where TEvent : struct
+        public IUnRegister RegisterEvent<TEvent>(Action<TEvent> onEvent)
         {
             return m_eventSystem.Register(onEvent);
         }
 
-        public void UnRegisterEvent<TEvent>(ValueAction<TEvent> onEvent) where TEvent : struct
+        public void UnRegisterEvent<TEvent>(Action<TEvent> onEvent)
         {
             m_eventSystem.UnRegister(onEvent);
         }

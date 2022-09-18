@@ -28,7 +28,7 @@ namespace Framework
         }
     }
 
-    public class EasyEvent<T>
+    public class EasyEvent<T> : IEasyEvent
     {
         private event Action<T> m_onEvent;
 
@@ -44,27 +44,6 @@ namespace Framework
         }
 
         public void Trigger(T @event)
-        {
-            m_onEvent(@event);
-        }
-    }
-
-    public class EasyValueEvent<T> : IEasyEvent where T : struct
-    {
-        private event ValueAction<T> m_onEvent;
-
-        public IUnRegister Register(ValueAction<T> onEvent)
-        {
-            m_onEvent += onEvent;
-            return new CustomUnRegister<ValueAction<T>>(UnRegister, onEvent);
-        }
-
-        public void UnRegister(ValueAction<T> onEvent)
-        {
-            m_onEvent -= onEvent;
-        }
-
-        public void Trigger(in T @event)
         {
             m_onEvent(@event);
         }

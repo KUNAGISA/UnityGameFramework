@@ -27,22 +27,22 @@
 
     public interface ISendEvent
     {
-        void SendEvent<TEvent>() where TEvent : struct;
+        void SendEvent<TEvent>() where TEvent : new();
 
-        void SendEvent<TEvent>(in TEvent @event) where TEvent : struct;
+        void SendEvent<TEvent>(TEvent @event);
     }
 
     public interface ISendCommand
     {
-        void SendCommand<TCommand>() where TCommand : struct, ICommand;
+        void SendCommand<TCommand>() where TCommand : ICommand, new();
 
-        void SendCommand<TCommand>(in TCommand command) where TCommand : struct, ICommand;
+        void SendCommand<TCommand>(TCommand command) where TCommand : ICommand;
     }
 
     public interface ISendQuery
     {
-        void SendQuery<TQuery, TResult>(out TResult result) where TQuery : struct, IQuery<TResult>;
+        void SendQuery<TQuery, TResult>(out TResult result) where TQuery : IQuery<TResult>, new();
 
-        void SendQuery<TQuery, TResult>(in TQuery query, out TResult result) where TQuery : struct, IQuery<TResult>;
+        void SendQuery<TQuery, TResult>(TQuery query, out TResult result) where TQuery : IQuery<TResult>;
     }
 }

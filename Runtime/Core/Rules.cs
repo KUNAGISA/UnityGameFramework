@@ -1,4 +1,6 @@
-﻿namespace Framework
+﻿using System;
+
+namespace Framework
 {
     public interface IBelongArchiecture
     {
@@ -41,12 +43,12 @@
             return self.GetArchitecture().GetUtility<TUtility>();
         }
 
-        public static IUnRegister RegisterEvent<TEvent>(this ICanRegisterEvent self, ValueAction<TEvent> onEvent) where TEvent : struct
+        public static IUnRegister RegisterEvent<TEvent>(this ICanRegisterEvent self, Action<TEvent> onEvent)
         {
             return self.GetArchitecture().RegisterEvent(onEvent);
         }
 
-        public static void UnRegisterEvent<TEvent>(this ICanRegisterEvent self, ValueAction<TEvent> onEvent) where TEvent : struct
+        public static void UnRegisterEvent<TEvent>(this ICanRegisterEvent self, Action<TEvent> onEvent)
         {
             self.GetArchitecture().UnRegisterEvent(onEvent);
         }
@@ -56,22 +58,22 @@
             self.GetArchitecture().SendEvent<TEvent>();
         }
 
-        public static void SendEvent<TEvent>(this ICanSendEvent self, in TEvent e) where TEvent : struct
+        public static void SendEvent<TEvent>(this ICanSendEvent self, TEvent e)
         {
             self.GetArchitecture().SendEvent(e);
         }
 
-        public static void SendCommand<T>(this ICanSendCommand self) where T : struct, ICommand
+        public static void SendCommand<T>(this ICanSendCommand self) where T : ICommand, new()
         {
             self.GetArchitecture().SendCommand<T>();
         }
 
-        public static void SendCommand<T>(this ICanSendCommand self, in T command) where T : struct, ICommand
+        public static void SendCommand<T>(this ICanSendCommand self, T command) where T : ICommand
         {
             self.GetArchitecture().SendCommand(command);
         }
 
-        public static void SendQuery<TQuery, TResult>(this ICanSendQuery self, TQuery query, out TResult result) where TQuery : struct, IQuery<TResult>
+        public static void SendQuery<TQuery, TResult>(this ICanSendQuery self, TQuery query, out TResult result) where TQuery : IQuery<TResult>
         {
             self.GetArchitecture().SendQuery(query, out result);
         }

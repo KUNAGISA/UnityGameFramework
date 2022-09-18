@@ -1,28 +1,30 @@
-﻿namespace Framework
+﻿using System;
+
+namespace Framework
 {
     public class TypeEventSystem
     {
         private readonly EasyEvents m_events = new EasyEvents();
 
-        public void Send<T>() where T : struct
+        public void Send<T>() where T : new()
         {
-            m_events.GetEvent<EasyValueEvent<T>>()?.Trigger(new T());
+            m_events.GetEvent<EasyEvent<T>>()?.Trigger(new T());
         }
 
-        public void Send<T>(in T @event) where T : struct
+        public void Send<T>(T @event)
         {
-            m_events.GetEvent<EasyValueEvent<T>>()?.Trigger(in @event);
+            m_events.GetEvent<EasyEvent<T>>()?.Trigger(@event);
         }
 
-        public IUnRegister Register<T>(ValueAction<T> onEvent) where T : struct
+        public IUnRegister Register<T>(Action<T> onEvent)
         {
-            var @event = m_events.GetOrAddEvent<EasyValueEvent<T>>();
+            var @event = m_events.GetOrAddEvent<EasyEvent<T>>();
             return @event.Register(onEvent);
         }
 
-        public void UnRegister<T>(ValueAction<T> onEvent) where T : struct
+        public void UnRegister<T>(Action<T> onEvent)
         {
-            m_events.GetEvent<EasyValueEvent<T>>()?.UnRegister(onEvent);
+            m_events.GetEvent<EasyEvent<T>>()?.UnRegister(onEvent);
         }
     }
 }
