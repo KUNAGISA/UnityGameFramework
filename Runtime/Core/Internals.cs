@@ -1,15 +1,5 @@
 ﻿namespace Framework.Internals
 {
-    public interface IInit
-    {
-        internal void Init();
-    }
-
-    public interface IDestory
-    {
-        internal void Destroy();
-    }
-
     public interface IGetSystem
     {
         TSystem GetSystem<TSystem>() where TSystem : class, ISystem;

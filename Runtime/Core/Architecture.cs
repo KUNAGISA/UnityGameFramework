@@ -46,8 +46,14 @@ namespace Framework
             m_architecture = new T();
             m_architecture.OnInit();
 
-            m_architecture.OnDealInitList(m_architecture.m_initModelList);
-            m_architecture.OnDealInitList(m_architecture.m_initSystemList);
+            foreach(var model in m_architecture.m_modelList)
+            {
+                model.Init();
+            }
+            foreach(var system in m_architecture.m_systemList)
+            {
+                system.Init();
+            }
 
             m_architecture.m_init = true;
         }
@@ -59,7 +65,24 @@ namespace Framework
                 return;
             }
 
-            m_architecture.m_iocContainer.ForEach((IDestory instance) => instance.Destroy());
+            foreach (var system in m_architecture.m_systemList)
+            {
+                system.Destroy();
+            }
+            m_architecture.m_systemList.Clear();
+
+            foreach (var model in m_architecture.m_modelList)
+            {
+                model.Destroy();
+            }
+            m_architecture.m_modelList.Clear();
+
+            foreach (var utility in m_architecture.m_utilityList)
+            {
+                utility.Destroy();
+            }
+            m_architecture.m_utilityList.Clear();
+
             m_architecture.OnDestroy();
             m_architecture = null;
         }
@@ -68,8 +91,9 @@ namespace Framework
         private readonly TypeEventSystem m_eventSystem = new TypeEventSystem();
 
         private bool m_init = false;
-        private readonly List<IInit> m_initModelList = new List<IInit>();
-        private readonly List<IInit> m_initSystemList = new List<IInit>();
+        private readonly List<IModel> m_modelList = new List<IModel>();
+        private readonly List<ISystem> m_systemList = new List<ISystem>();
+        private readonly List<IUtility> m_utilityList = new List<IUtility>();
 
         protected Architecture() { }
 
@@ -78,12 +102,18 @@ namespace Framework
             if (m_iocContainer.TryGet<TModel>(out var removed))
             {
                 m_iocContainer.UnRegister<TModel>();
+                m_modelList.Remove(removed);
                 removed.Destroy();
             }
             
             model.SetArchiecture(this);
             m_iocContainer.Register(model);
-            OnInitWhenRegister(model, m_initModelList);
+            m_modelList.Add(model);
+
+            if (m_init)
+            {
+                model.Init();
+            }
         }
 
         public void RegisterSystem<TSystem>(TSystem system) where TSystem : class, ISystem
@@ -91,12 +121,18 @@ namespace Framework
             if (m_iocContainer.TryGet<TSystem>(out var removed))
             {
                 m_iocContainer.UnRegister<TSystem>();
+                m_systemList.Remove(system);
                 removed.Destroy();
             }
 
             system.SetArchiecture(this);
             m_iocContainer.Register(system);
-            OnInitWhenRegister(system, m_initSystemList);
+            m_systemList.Add(system);
+
+            if (m_init)
+            {
+                system.Init();
+            }
         }
 
         public void RegisterUtility<TUtility>(TUtility utility) where TUtility : class, IUtility
@@ -104,11 +140,13 @@ namespace Framework
             if (m_iocContainer.TryGet<TUtility>(out var removed))
             {
                 m_iocContainer.UnRegister<TUtility>();
+                m_utilityList.Remove(utility);
                 removed.Destroy();
             }
 
             utility.SetArchiecture(this);
             m_iocContainer.Register(utility);
+            m_utilityList.Add(utility);
         }
 
         public TSystem GetSystem<TSystem>() where TSystem : class, ISystem
@@ -169,29 +207,6 @@ namespace Framework
         public void Inject(object @object)
         {
             m_iocContainer.Inject(@object);
-        }
-
-        private void OnInitWhenRegister(IInit instance, IList<IInit> initList)
-        {
-            if (m_init)
-            {
-                Inject(instance);
-                instance.Init();
-            }
-            else
-            {
-                initList.Add(instance);
-            }
-        }
-
-        private void OnDealInitList(IList<IInit> initList)
-        {
-            foreach(var instance in initList)
-            {
-                Inject(instance);
-                instance.Init();
-            }
-            initList.Clear();
         }
 
         protected abstract void OnInit();

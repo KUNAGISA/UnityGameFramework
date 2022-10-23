@@ -1,26 +1,26 @@
-﻿using Framework.Internals;
-
-namespace Framework
+﻿namespace Framework
 {
-    public interface IModel : IInit, IDestory, IBelongArchiecture, ICanSetArchiecture, ICanGetUtility, ICanSendEvent
+    public interface IModel : IBelongArchiecture, ICanSetArchiecture, ICanGetUtility, ICanSendEvent
     {
+        protected internal void Init();
 
+        protected internal void Destroy();
     }
 
     public abstract class AbstractModel : IModel
     {
         private IArchitecture m_architecture;
 
-        void IInit.Init() => OnInit();
+        void IModel.Init() => OnInit();
 
-        void IDestory.Destroy() => OnDestroy();
+        void IModel.Destroy() => OnDestroy();
 
         IArchitecture IBelongArchiecture.GetArchitecture() => m_architecture;
 
         void ICanSetArchiecture.SetArchiecture(IArchitecture architecture) => m_architecture = architecture;
 
-        abstract protected void OnInit();
+        protected virtual void OnInit() { }
 
-        abstract protected void OnDestroy();
+        protected virtual void OnDestroy() { }
     }
 }
