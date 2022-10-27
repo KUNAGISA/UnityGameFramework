@@ -31,8 +31,8 @@
 
     public interface ISendQuery
     {
-        void SendQuery<TQuery, TResult>(out TResult result) where TQuery : IQuery<TResult>, new();
+        TResult SendQuery<TResult, TQuery>() where TQuery : IQuery<TResult>, new();
 
-        void SendQuery<TQuery, TResult>(TQuery query, out TResult result) where TQuery : IQuery<TResult>;
+        TResult SendQuery<TResult, TQuery>(TQuery query) where TQuery : IQuery<TResult>;
     }
 }

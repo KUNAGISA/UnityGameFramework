@@ -178,14 +178,14 @@ namespace Framework
             command.Execute(this);
         }
 
-        public void SendQuery<TQuery, TResult>(out TResult result) where TQuery : IQuery<TResult>, new()
+        public TResult SendQuery<TResult, TQuery>() where TQuery : IQuery<TResult>, new()
         {
-            result = new TQuery().Do(this);
+            return new TQuery().Do(this);
         }
 
-        public void SendQuery<TQuery, TResult>(TQuery query, out TResult result) where TQuery : IQuery<TResult>
+        TResult SendQuery<TResult, TQuery>(TQuery query) where TQuery : IQuery<TResult>
         {
-            result = query.Do(this);
+            return query.Do(this);
         }
 
         public void SendEvent<TEvent>() where TEvent : new()
