@@ -183,7 +183,7 @@ namespace Framework
             return new TQuery().Do(this);
         }
 
-        TResult SendQuery<TResult, TQuery>(TQuery query) where TQuery : IQuery<TResult>
+        public TResult SendQuery<TResult, TQuery>(TQuery query) where TQuery : IQuery<TResult>
         {
             return query.Do(this);
         }
