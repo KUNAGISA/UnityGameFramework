@@ -34,6 +34,8 @@ namespace Framework
             }
         }
 
+        public static event Action<T> OnRegisterPatch;
+
         public static bool IsValid => m_architecture != null;
 
         public static void MakeSureArchitecture()
@@ -45,6 +47,8 @@ namespace Framework
 
             m_architecture = new T();
             m_architecture.OnInit();
+
+            OnRegisterPatch?.Invoke(m_architecture);
 
             foreach(var model in m_architecture.m_modelList)
             {
