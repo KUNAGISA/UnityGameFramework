@@ -82,5 +82,15 @@ namespace Framework
         {
             return self.GetArchitecture().SendQuery<TResult, TQuery>();
         }
+
+        public static void SendQuery<TResult, TQuery>(this ICanSendQuery self, TQuery query, out TResult output) where TQuery : IQuery<TResult>
+        {
+            output = self.GetArchitecture().SendQuery<TResult, TQuery>(query);
+        }
+
+        public static void SendQuery<TResult, TQuery>(this ICanSendQuery self, out TResult output) where TQuery : IQuery<TResult>, new()
+        {
+            output = self.GetArchitecture().SendQuery<TResult, TQuery>();
+        }
     }
 }

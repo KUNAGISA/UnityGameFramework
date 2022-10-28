@@ -1,10 +1,9 @@
-using Framework.Internals;
 using System;
 using System.Collections.Generic;
 
 namespace Framework
 {
-    public interface IArchitecture : IGetModel, IGetSystem, IGetUtility, ISendEvent, ISendCommand, ISendQuery
+    public interface IArchitecture
     {
         void RegisterSystem<T>(T system) where T : class, ISystem;
 
@@ -16,10 +15,28 @@ namespace Framework
 
         void UnRegisterEvent<T>(Action<T> onEvent);
 
+        TSystem GetSystem<TSystem>() where TSystem : class, ISystem;
+
+        TModel GetModel<TModel>() where TModel : class, IModel;
+
+        TUtility GetUtility<TUtility>() where TUtility : class, IUtility;
+
+        void SendCommand<TCommand>() where TCommand : ICommand, new();
+
+        void SendCommand<TCommand>(TCommand command) where TCommand : ICommand;
+
+        TResult SendQuery<TResult, TQuery>() where TQuery : IQuery<TResult>, new();
+
+        TResult SendQuery<TResult, TQuery>(TQuery query) where TQuery : IQuery<TResult>;
+
+        void SendEvent<TEvent>() where TEvent : new();
+
+        void SendEvent<TEvent>(TEvent @event);
+
         void Inject(object @object);
     }
 
-    public abstract class Architecture<T> : IArchitecture, ICommand.IAccess, IQuery.IAccess where T : Architecture<T>, IArchitecture, new()
+    public abstract class Architecture<T> : IArchitecture where T : Architecture<T>, IArchitecture, new()
     {
         private static T m_architecture = null;
         public static IArchitecture Instance
@@ -170,22 +187,34 @@ namespace Framework
 
         public virtual void SendCommand<TCommand>() where TCommand : ICommand, new()
         {
-            new TCommand().Execute(this);
+            var command = new TCommand();
+            command.architecture = this;
+            command.Execute();
+            command.architecture = null;
         }
 
         public virtual void SendCommand<TCommand>(TCommand command) where TCommand : ICommand
         {
-            command.Execute(this);
+            command.architecture = this;
+            command.Execute();
+            command.architecture = null;
         }
 
         public TResult SendQuery<TResult, TQuery>() where TQuery : IQuery<TResult>, new()
         {
-            return new TQuery().Do(this);
+            var query = new TQuery();
+            query.architecture = this;
+            var result = query.Do();
+            query.architecture = null;
+            return result;
         }
 
         public TResult SendQuery<TResult, TQuery>(TQuery query) where TQuery : IQuery<TResult>
         {
-            return query.Do(this);
+            query.architecture = this;
+            var result = query.Do();
+            query.architecture = null;
+            return result;
         }
 
         public void SendEvent<TEvent>() where TEvent : new()

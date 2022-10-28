@@ -1,6 +1,4 @@
-﻿using Framework.Internals;
-
-namespace Framework
+﻿namespace Framework
 {
     public interface ISystem : IBelongArchiecture, ICanSetArchiecture, ICanGetUtility, ICanGetModel, ICanGetSystem, ICanRegisterEvent, ICanSendCommand, ICanSendEvent, ICanSendQuery
     {
