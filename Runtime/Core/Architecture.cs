@@ -36,7 +36,7 @@ namespace Framework
         void Inject(object @object);
     }
 
-    public abstract class Architecture<T> : IArchitecture where T : Architecture<T>, IArchitecture, new()
+    public abstract class Architecture<T> : IArchitecture, ICommandContext, IQueryContext where T : Architecture<T>, IArchitecture, new()
     {
         private static T m_architecture = null;
         public static IArchitecture Instance
@@ -187,34 +187,22 @@ namespace Framework
 
         public virtual void SendCommand<TCommand>() where TCommand : ICommand, new()
         {
-            var command = new TCommand();
-            command.architecture = this;
-            command.Execute();
-            command.architecture = null;
+            new TCommand().Execute(this);
         }
 
         public virtual void SendCommand<TCommand>(TCommand command) where TCommand : ICommand
         {
-            command.architecture = this;
-            command.Execute();
-            command.architecture = null;
+            command.Execute(this);
         }
 
         public TResult SendQuery<TResult, TQuery>() where TQuery : IQuery<TResult>, new()
         {
-            var query = new TQuery();
-            query.architecture = this;
-            var result = query.Do();
-            query.architecture = null;
-            return result;
+            return new TQuery().Do(this);
         }
 
         public TResult SendQuery<TResult, TQuery>(TQuery query) where TQuery : IQuery<TResult>
         {
-            query.architecture = this;
-            var result = query.Do();
-            query.architecture = null;
-            return result;
+            return query.Do(this);
         }
 
         public void SendEvent<TEvent>() where TEvent : new()
@@ -241,6 +229,8 @@ namespace Framework
         {
             m_iocContainer.Inject(@object);
         }
+
+        IArchitecture IBelongArchiecture.GetArchitecture() => this;
 
         protected abstract void OnInit();
 
