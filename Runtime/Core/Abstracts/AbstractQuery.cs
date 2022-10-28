@@ -2,7 +2,7 @@
 {
     public interface IQuery<TResult> : ICanGetSystem, ICanGetModel, ICanGetUtility, ICanSendQuery
     {
-        internal IArchitecture architecture { get; set; }
+        protected internal IArchitecture architecture { get; set; }
 
         IArchitecture IBelongArchiecture.GetArchitecture() => architecture;
 
