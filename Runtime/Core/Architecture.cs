@@ -142,7 +142,7 @@ namespace Framework
             if (m_iocContainer.TryGet<TSystem>(out var removed))
             {
                 m_iocContainer.UnRegister<TSystem>();
-                m_systemList.Remove(system);
+                m_systemList.Remove(removed);
                 removed.Destroy();
             }
 
@@ -161,7 +161,7 @@ namespace Framework
             if (m_iocContainer.TryGet<TUtility>(out var removed))
             {
                 m_iocContainer.UnRegister<TUtility>();
-                m_utilityList.Remove(utility);
+                m_utilityList.Remove(removed);
                 removed.Destroy();
             }
 
