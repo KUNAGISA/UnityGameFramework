@@ -24,7 +24,7 @@ namespace Framework
 
         public void Trigger()
         {
-            m_onEvent();
+            m_onEvent?.Invoke();
         }
     }
 
@@ -45,7 +45,7 @@ namespace Framework
 
         public void Trigger(T @event)
         {
-            m_onEvent(@event);
+            m_onEvent?.Invoke(@event);
         }
     }
 
