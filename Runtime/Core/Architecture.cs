@@ -32,11 +32,9 @@ namespace Framework
         void SendEvent<TEvent>() where TEvent : new();
 
         void SendEvent<TEvent>(TEvent @event);
-
-        void Inject(object @object);
     }
 
-    public abstract class Architecture<T> : IArchitecture, ICommandContext, IQueryContext where T : Architecture<T>, IArchitecture, new()
+    public abstract class Architecture<T> : IArchitecture where T : Architecture<T>, IArchitecture, new()
     {
         private static T m_architecture = null;
         public static IArchitecture Instance
@@ -187,22 +185,27 @@ namespace Framework
 
         public virtual void SendCommand<TCommand>() where TCommand : ICommand, new()
         {
-            new TCommand().Execute(this);
+            new TCommand() { Architecture = this }.Execute();
         }
 
         public virtual void SendCommand<TCommand>(TCommand command) where TCommand : ICommand
         {
-            command.Execute(this);
+            command.Architecture = this;
+            command.Execute();
+            command.Architecture = null;
         }
 
         public TResult SendQuery<TResult, TQuery>() where TQuery : IQuery<TResult>, new()
         {
-            return new TQuery().Do(this);
+            return new TQuery { Architecture = this }.Do();
         }
 
         public TResult SendQuery<TResult, TQuery>(TQuery query) where TQuery : IQuery<TResult>
         {
-            return query.Do(this);
+            query.Architecture = this;
+            var reslut = query.Do();
+            query.Architecture = null;
+            return reslut;
         }
 
         public void SendEvent<TEvent>() where TEvent : new()
@@ -224,13 +227,6 @@ namespace Framework
         {
             m_eventSystem.UnRegister(onEvent);
         }
-
-        public void Inject(object @object)
-        {
-            m_iocContainer.Inject(@object);
-        }
-
-        IArchitecture IBelongArchiecture.GetArchitecture() => this;
 
         protected abstract void OnInit();
 

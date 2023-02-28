@@ -1,18 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
 
 namespace Framework
 {
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
-    public class InjectAttribute : Attribute
-    {
-
-    }
-
     public class IOCContainer
     {
-        readonly Dictionary<Type, object> m_instances = new Dictionary<Type, object>();
+        private readonly Dictionary<Type, object> m_instances = new Dictionary<Type, object>();
 
         public void Register<T>(T instance) where T : class
         {
@@ -30,35 +23,6 @@ namespace Framework
         public void UnRegister<T>() where T : class
         {
             m_instances.Remove(typeof(T));
-        }
-
-        public void Inject(object instance)
-        {
-            var memberInfos = instance.GetType().GetTypeInfo().DeclaredMembers;
-            foreach(var memberInfo in memberInfos)
-            {
-                if (memberInfo.GetCustomAttribute<InjectAttribute>() == null)
-                {
-                    continue;
-                }
-                if (memberInfo.MemberType == MemberTypes.Property)
-                {
-                    var propertyInfo = memberInfo as PropertyInfo;
-                    if (m_instances.TryGetValue(propertyInfo.PropertyType, out var value))
-                    {
-                        propertyInfo.SetValue(instance, value);
-                    }
-                    
-                }
-                else if (memberInfo.MemberType == MemberTypes.Field)
-                {
-                    var feildInfo = memberInfo as FieldInfo;
-                    if (m_instances.TryGetValue(feildInfo.FieldType, out var value))
-                    {
-                        feildInfo.SetValue(instance, value);
-                    }
-                }
-            }
         }
 
         public T Get<T>() where T : class
@@ -79,12 +43,11 @@ namespace Framework
 
         public void ForEach<T>(Action<T> action)
         {
-            foreach(var pair in m_instances)
+            foreach(var (_, instance) in m_instances)
             {
-                var instance = pair.Value;
-                if (instance is T)
+                if (instance is T target)
                 {
-                    action((T)instance);
+                    action(target);
                 }
             }
         }

@@ -7,22 +7,26 @@ namespace Framework
         void UnRegister();
     }
 
-    public sealed class CustomUnRegister<T> : IUnRegister where T : class
+    public interface IUnRegisterable<T>
     {
-        private Action<T> m_onUnRegister = null;
-        private T m_unRegister = null;
+        void UnRegister(T register);
+    }
 
-        public CustomUnRegister(Action<T> onUnRegister, T unRegister)
+    public sealed class UnRegisterableUnRegister<T> : IUnRegister where T : class
+    {
+        private IUnRegisterable<T> m_unregisterable = null;
+        private T m_register = null;
+
+        public UnRegisterableUnRegister(IUnRegisterable<T> unregisterable, T register)
         {
-            m_onUnRegister = onUnRegister;
-            m_unRegister = unRegister;
+            m_unregisterable = unregisterable;
+            m_register = register;
         }
 
         public void UnRegister()
         {
-            m_onUnRegister?.Invoke(m_unRegister);
-            m_onUnRegister = null;
-            m_unRegister = null;
+            m_unregisterable?.UnRegister(m_register);
+            m_unregisterable = null; m_register = null;
         }
     }
 }

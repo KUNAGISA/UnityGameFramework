@@ -5,53 +5,54 @@ namespace Framework
 {
     public interface IEasyEvent
     { 
+
     }
 
-    public class EasyEvent : IEasyEvent
+    public class EasyEvent : IEasyEvent, IUnRegisterable<Action>
     {
-        private event Action m_onEvent;
+        private event Action OnEvent;
 
         public IUnRegister Register(Action onEvent)
         {
-            m_onEvent += onEvent;
-            return new CustomUnRegister<Action>(UnRegister, onEvent);
+            OnEvent += onEvent;
+            return new UnRegisterableUnRegister<Action>(this, onEvent);
         }
 
         public void UnRegister(Action onEvent)
         {
-            m_onEvent -= onEvent;
+            OnEvent -= onEvent;
         }
 
         public void Trigger()
         {
-            m_onEvent?.Invoke();
+            OnEvent?.Invoke();
         }
     }
 
-    public class EasyEvent<T> : IEasyEvent
+    public class EasyEvent<T> : IEasyEvent, IUnRegisterable<Action<T>>
     {
-        private event Action<T> m_onEvent;
+        private event Action<T> OnEvent;
 
         public IUnRegister Register(Action<T> onEvent)
         {
-            m_onEvent += onEvent;
-            return new CustomUnRegister<Action<T>>(UnRegister, onEvent);
+            OnEvent += onEvent;
+            return new UnRegisterableUnRegister<Action<T>>(this, onEvent);
         }
 
         public void UnRegister(Action<T> onEvent)
         {
-            m_onEvent -= onEvent;
+            OnEvent -= onEvent;
         }
 
         public void Trigger(T @event)
         {
-            m_onEvent?.Invoke(@event);
+            OnEvent?.Invoke(@event);
         }
     }
 
     public class EasyEvents
     {
-        private Dictionary<Type, IEasyEvent> m_typeEvents = new Dictionary<Type, IEasyEvent>();
+        private readonly Dictionary<Type, IEasyEvent> m_typeEvents = new Dictionary<Type, IEasyEvent>();
 
         public void AddEvent<T>() where T : IEasyEvent, new()
         {

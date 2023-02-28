@@ -1,12 +1,11 @@
 ﻿namespace Framework
 {
-    public interface ICommandContext : ICanGetModel, ICanGetSystem, ICanGetUtility, ICanSendCommand, ICanSendQuery, ICanSendEvent
+    public interface ICommand : ICanGetSystem, ICanGetModel, ICanGetUtility, ICanSendEvent, ICanSendQuery, ICanSendCommand
     {
+        internal IArchitecture Architecture { get; set; }
 
-    }
+        internal protected void Execute();
 
-    public interface ICommand
-    {
-        protected internal void Execute(ICommandContext context);
+        IArchitecture IBelongArchiecture.GetArchitecture() => Architecture;
     }
 }

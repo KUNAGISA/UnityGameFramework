@@ -5,7 +5,7 @@ namespace Framework
 {
     public interface IReadonlyBindableProperty<T>
     {
-        T value { get; }
+        T Value { get; }
 
         IUnRegister Register(Action<T> onValueChanged);
 
@@ -16,19 +16,19 @@ namespace Framework
 
     public interface IBindableProperty<T> : IReadonlyBindableProperty<T>
     {
-        new T value { get; set; }
+        new T Value { get; set; }
 
         void SetValueSilently(T value);
     }
 
-    public class BindableProperty<T> : IBindableProperty<T>
+    public class BindableProperty<T> : IBindableProperty<T>, IUnRegisterable<Action<T>>
     {
         private static readonly IEqualityComparer<T> comparer = EqualityComparer<T>.Default;
 
-        private event Action<T> m_onValueChanged;
+        private event Action<T> OnValueChanged;
 
         private T m_value = default;
-        public T value
+        public T Value
         {
             get => GetValue();
             set
@@ -36,7 +36,7 @@ namespace Framework
                 if (!comparer.Equals(value, m_value))
                 {
                     SetValue(value);
-                    m_onValueChanged?.Invoke(m_value);
+                    OnValueChanged?.Invoke(m_value);
                 }
             }
         }
@@ -53,8 +53,8 @@ namespace Framework
 
         public IUnRegister Register(Action<T> onValueChanged)
         {
-            m_onValueChanged += onValueChanged;
-            return new CustomUnRegister<Action<T>>(UnRegister, onValueChanged);
+            OnValueChanged += onValueChanged;
+            return new UnRegisterableUnRegister<Action<T>>(this, onValueChanged);
         }
 
         public IUnRegister RegisterWithInitValue(Action<T> onValueChanged)
@@ -65,7 +65,7 @@ namespace Framework
 
         public void UnRegister(Action<T> onValueChanged)
         {
-            m_onValueChanged -= onValueChanged;
+            OnValueChanged -= onValueChanged;
         }
 
         protected virtual T GetValue()
@@ -80,7 +80,7 @@ namespace Framework
 
         public static implicit operator T (BindableProperty<T> property)
         {
-            return property.value;
+            return property.Value;
         }
     }
 }

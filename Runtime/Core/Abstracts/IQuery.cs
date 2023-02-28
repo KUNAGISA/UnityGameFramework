@@ -1,12 +1,11 @@
 ﻿namespace Framework
 {
-    public interface IQueryContext : ICanGetSystem, ICanGetModel, ICanGetUtility, ICanSendQuery
+    public interface IQuery<TResult> : ICanGetSystem, ICanGetModel, ICanGetUtility, ICanSendQuery
     {
+        internal IArchitecture Architecture { get; set; }
 
-    }
+        protected internal TResult Do();
 
-    public interface IQuery<TResult>
-    {
-        protected internal TResult Do(IQueryContext context);
+        IArchitecture IBelongArchiecture.GetArchitecture() => Architecture;
     }
 }
