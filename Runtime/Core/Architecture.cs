@@ -185,26 +185,26 @@ namespace Framework
 
         public virtual void SendCommand<TCommand>() where TCommand : ICommand, new()
         {
-            new TCommand() { Architecture = this }.Execute();
+            new TCommand() { ExecutingArchitecture = this }.Execute();
         }
 
         public virtual void SendCommand<TCommand>(TCommand command) where TCommand : ICommand
         {
-            command.Architecture = this;
+            command.ExecutingArchitecture = this;
             command.Execute();
-            command.Architecture = null;
+            command.ExecutingArchitecture = null;
         }
 
         public TResult SendQuery<TResult, TQuery>() where TQuery : IQuery<TResult>, new()
         {
-            return new TQuery { Architecture = this }.Do();
+            return new TQuery { ExecutingArchitecture = this }.Do();
         }
 
         public TResult SendQuery<TResult, TQuery>(TQuery query) where TQuery : IQuery<TResult>
         {
-            query.Architecture = this;
+            query.ExecutingArchitecture = this;
             var reslut = query.Do();
-            query.Architecture = null;
+            query.ExecutingArchitecture = null;
             return reslut;
         }
 

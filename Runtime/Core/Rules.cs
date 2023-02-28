@@ -9,7 +9,7 @@ namespace Framework
 
     public interface ICanSetArchiecture
     {
-        void SetArchiecture(IArchitecture architecture);
+        protected internal void SetArchiecture(IArchitecture architecture);
     }
 
     public interface ICanGetModel : IBelongArchiecture { }

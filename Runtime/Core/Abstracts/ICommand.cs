@@ -2,10 +2,10 @@
 {
     public interface ICommand : ICanGetSystem, ICanGetModel, ICanGetUtility, ICanSendEvent, ICanSendQuery, ICanSendCommand
     {
-        internal IArchitecture Architecture { get; set; }
+        protected internal IArchitecture ExecutingArchitecture { get; set; }
 
         internal protected void Execute();
 
-        IArchitecture IBelongArchiecture.GetArchitecture() => Architecture;
+        IArchitecture IBelongArchiecture.GetArchitecture() => ExecutingArchitecture;
     }
 }
