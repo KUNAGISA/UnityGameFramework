@@ -3,6 +3,24 @@ using System.Collections.Generic;
 
 namespace Framework
 {
+    internal readonly struct ArchitectureWorkspace : IDisposable
+    {
+        internal static IArchitecture ExecutingArchitecture = null;
+
+        private readonly IArchitecture m_recordArchitecture;
+
+        internal ArchitectureWorkspace(IArchitecture architecture)
+        {
+            m_recordArchitecture = ExecutingArchitecture;
+            ExecutingArchitecture = architecture;
+        }
+
+        void IDisposable.Dispose()
+        {
+            ExecutingArchitecture = m_recordArchitecture;
+        }
+    }
+
     public interface IArchitecture
     {
         void RegisterSystem<T>(T system) where T : class, ISystem;
@@ -116,7 +134,7 @@ namespace Framework
 
         protected Architecture() { }
 
-        public void RegisterModel<TModel>(TModel model) where TModel : class, IModel
+        public virtual void RegisterModel<TModel>(TModel model) where TModel : class, IModel
         {
             if (m_iocContainer.TryGet<TModel>(out var removed))
             {
@@ -135,7 +153,7 @@ namespace Framework
             }
         }
 
-        public void RegisterSystem<TSystem>(TSystem system) where TSystem : class, ISystem
+        public virtual void RegisterSystem<TSystem>(TSystem system) where TSystem : class, ISystem
         {
             if (m_iocContainer.TryGet<TSystem>(out var removed))
             {
@@ -154,7 +172,7 @@ namespace Framework
             }
         }
 
-        public void RegisterUtility<TUtility>(TUtility utility) where TUtility : class, IUtility
+        public virtual void RegisterUtility<TUtility>(TUtility utility) where TUtility : class, IUtility
         {
             if (m_iocContainer.TryGet<TUtility>(out var removed))
             {
@@ -168,62 +186,69 @@ namespace Framework
             m_utilityList.Add(utility);
         }
 
-        public TSystem GetSystem<TSystem>() where TSystem : class, ISystem
+        public virtual TSystem GetSystem<TSystem>() where TSystem : class, ISystem
         {
             return m_iocContainer.Get<TSystem>();
         }
 
-        public TModel GetModel<TModel>() where TModel : class, IModel
+        public virtual TModel GetModel<TModel>() where TModel : class, IModel
         {
             return m_iocContainer.Get<TModel>();
         }
 
-        public TUtility GetUtility<TUtility>() where TUtility : class, IUtility
+        public virtual TUtility GetUtility<TUtility>() where TUtility : class, IUtility
         {
             return m_iocContainer.Get<TUtility>();
         }
 
         public virtual void SendCommand<TCommand>() where TCommand : ICommand, new()
         {
-            new TCommand() { ExecutingArchitecture = this }.Execute();
+            using (new ArchitectureWorkspace(this))
+            {
+                new TCommand().Execute();
+            }
         }
 
         public virtual void SendCommand<TCommand>(TCommand command) where TCommand : ICommand
         {
-            command.ExecutingArchitecture = this;
-            command.Execute();
-            command.ExecutingArchitecture = null;
+            using (new ArchitectureWorkspace(this))
+            {
+                command.Execute();
+            }
         }
 
-        public TResult SendQuery<TResult, TQuery>() where TQuery : IQuery<TResult>, new()
+        public virtual TResult SendQuery<TResult, TQuery>() where TQuery : IQuery<TResult>, new()
         {
-            return new TQuery { ExecutingArchitecture = this }.Do();
+            using (new ArchitectureWorkspace(this))
+            {
+                return new TQuery().Do();
+            }
         }
 
-        public TResult SendQuery<TResult, TQuery>(TQuery query) where TQuery : IQuery<TResult>
+        public virtual TResult SendQuery<TResult, TQuery>(TQuery query) where TQuery : IQuery<TResult>
         {
-            query.ExecutingArchitecture = this;
-            var reslut = query.Do();
-            query.ExecutingArchitecture = null;
-            return reslut;
+            using (new ArchitectureWorkspace(this))
+            {
+                return query.Do();
+            }
         }
 
-        public void SendEvent<TEvent>() where TEvent : new()
+        public virtual void SendEvent<TEvent>() where TEvent : new()
         {
             m_eventSystem.Send<TEvent>();
         }
 
-        public void SendEvent<TEvent>(TEvent @event)
+        public virtual void SendEvent<TEvent>(TEvent @event)
         {
             m_eventSystem.Send(@event);
         }
 
-        public IUnRegister RegisterEvent<TEvent>(Action<TEvent> onEvent)
+        public virtual IUnRegister RegisterEvent<TEvent>(Action<TEvent> onEvent)
         {
             return m_eventSystem.Register(onEvent);
         }
 
-        public void UnRegisterEvent<TEvent>(Action<TEvent> onEvent)
+        public virtual void UnRegisterEvent<TEvent>(Action<TEvent> onEvent)
         {
             m_eventSystem.UnRegister(onEvent);
         }
