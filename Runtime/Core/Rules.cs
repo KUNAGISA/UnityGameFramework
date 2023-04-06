@@ -26,6 +26,8 @@ namespace Framework
 
     public interface ICanSendQuery : IBelongArchiecture { }
 
+    public interface ICanInject : IBelongArchiecture { }
+
     public static class FrameworkRulesExection
     {
         public static TSystem GetSystem<TSystem>(this ICanGetSystem self) where TSystem : class, ISystem
@@ -73,24 +75,34 @@ namespace Framework
             self.GetArchitecture().SendCommand(command);
         }
 
-        public static TResult SendQuery<TResult, TQuery>(this ICanSendQuery self, TQuery query) where TQuery : IQuery<TResult>
+        public static TResult SendCommand<TCommand, TResult>(this ICanSendCommand self) where TCommand : ICommand<TResult>, new()
         {
-            return self.GetArchitecture().SendQuery<TResult, TQuery>(query);
+            return self.GetArchitecture().SendCommand<TCommand, TResult>();
         }
 
-        public static TResult SendQuery<TResult, TQuery>(this ICanSendQuery self) where TQuery : IQuery<TResult>, new()
+        public static TResult SendCommand<TCommand, TResult>(this ICanSendCommand self, TCommand command) where TCommand : ICommand<TResult>
         {
-            return self.GetArchitecture().SendQuery<TResult, TQuery>();
+            return self.GetArchitecture().SendCommand<TCommand, TResult>(command);
         }
 
-        public static void SendQuery<TResult, TQuery>(this ICanSendQuery self, TQuery query, out TResult output) where TQuery : IQuery<TResult>
+        public static TResult SendQuery<TQuery, TResult>(this ICanSendQuery self, TQuery query) where TQuery : IQuery<TResult>
         {
-            output = self.GetArchitecture().SendQuery<TResult, TQuery>(query);
+            return self.GetArchitecture().SendQuery<TQuery, TResult>(query);
         }
 
-        public static void SendQuery<TResult, TQuery>(this ICanSendQuery self, out TResult output) where TQuery : IQuery<TResult>, new()
+        public static TResult SendQuery<TQuery, TResult>(this ICanSendQuery self) where TQuery : IQuery<TResult>, new()
         {
-            output = self.GetArchitecture().SendQuery<TResult, TQuery>();
+            return self.GetArchitecture().SendQuery<TQuery, TResult>();
+        }
+
+        public static void Inject(this ICanInject self)
+        {
+            self.GetArchitecture().Inject(self);
+        }
+
+        public static void Inject<TStruct>(this ref TStruct self) where TStruct : struct, ICanInject
+        {
+            self.GetArchitecture().Inject(ref self);
         }
     }
 }

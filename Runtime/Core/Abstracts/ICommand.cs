@@ -6,4 +6,11 @@
 
         IArchitecture IBelongArchiecture.GetArchitecture() => ArchitectureWorkspace.ExecutingArchitecture;
     }
+
+    public interface ICommand<out TResult> : ICanGetSystem, ICanGetModel, ICanGetUtility, ICanSendEvent, ICanSendQuery, ICanSendCommand
+    {
+        internal protected TResult Execute();
+
+        IArchitecture IBelongArchiecture.GetArchitecture() => ArchitectureWorkspace.ExecutingArchitecture;
+    }
 }

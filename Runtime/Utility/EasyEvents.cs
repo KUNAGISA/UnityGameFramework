@@ -78,5 +78,10 @@ namespace Framework
             }
             return (T)easyEvent;
         }
+
+        public void Clear()
+        {
+            m_typeEvents.Clear();
+        }
     }
 }

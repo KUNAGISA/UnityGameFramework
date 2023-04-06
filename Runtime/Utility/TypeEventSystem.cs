@@ -26,5 +26,10 @@ namespace Framework
         {
             m_events.GetEvent<EasyEvent<T>>()?.UnRegister(onEvent);
         }
+
+        public void Clear()
+        {
+            m_events.Clear();
+        }
     }
 }
