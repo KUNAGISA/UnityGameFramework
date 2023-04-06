@@ -58,13 +58,12 @@ namespace Framework
 
         public void Inject(object instance)
         {
-            if (instance == null) return;
+            if (instance == null)
+            {
+                return;
+            }
 
-#if !NETFX_CORE
-            var members = instance.GetType().GetMembers();
-#else
-            var members = obj.GetType().GetTypeInfo().DeclaredMembers;
-#endif
+            var members = instance.GetType().GetMembers(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             foreach(var memberInfo in members)
             {
                 var injectAttribute = memberInfo.GetCustomAttribute<InjectAttribute>(true);
@@ -84,14 +83,15 @@ namespace Framework
         public void Inject<T>(ref T instance) where T : struct
         {
             var reference = __makeref(instance);
-            var fields = instance.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-
-            foreach (var fieldInfo in fields)
+            var members = instance.GetType().GetMembers(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            foreach (var memberInfo in members)
             {
-                var injectAttribute = fieldInfo.GetCustomAttribute<InjectAttribute>(true);
-                if (injectAttribute != null)
+                var injectAttribute = memberInfo.GetCustomAttribute<InjectAttribute>(true);
+                if (injectAttribute == null) continue;
+
+                // 只对Field设置，暂时还没找到Property的设置方法
+                if (memberInfo is FieldInfo fieldInfo)
                 {
-                    // 暂时只支持Field，没找到Property的Struct设置方法
                     fieldInfo.SetValueDirect(reference, GetOfType(fieldInfo.FieldType));
                 }
             }
