@@ -63,17 +63,17 @@ namespace Framework
                 return;
             }
 
-            var members = instance.GetType().GetMembers(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            foreach(var memberInfo in members)
+            var type = instance.GetType();
+            foreach(var fieldInfo in type.GetRuntimeFields())
             {
-                var injectAttribute = memberInfo.GetCustomAttribute<InjectAttribute>(true);
-                if (injectAttribute == null) continue;
-
-                if (memberInfo is FieldInfo fieldInfo)
+                if (fieldInfo.GetCustomAttribute<InjectAttribute>(true) != null)
                 {
                     fieldInfo.SetValue(instance, GetOfType(fieldInfo.FieldType));
                 }
-                else if (memberInfo is PropertyInfo propertyInfo && propertyInfo.CanWrite)
+            }
+            foreach (var propertyInfo in type.GetRuntimeProperties())
+            {
+                if (propertyInfo.GetCustomAttribute<InjectAttribute>(true) != null)
                 {
                     propertyInfo.SetValue(instance, GetOfType(propertyInfo.PropertyType));
                 }
@@ -82,15 +82,13 @@ namespace Framework
 
         public void Inject<T>(ref T instance) where T : struct
         {
+            var type = typeof(T);
             var reference = __makeref(instance);
-            var members = instance.GetType().GetMembers(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            foreach (var memberInfo in members)
-            {
-                var injectAttribute = memberInfo.GetCustomAttribute<InjectAttribute>(true);
-                if (injectAttribute == null) continue;
 
-                // 只对Field设置，暂时还没找到Property的设置方法
-                if (memberInfo is FieldInfo fieldInfo)
+            // 只有Field有SetValueDirect，Property暂时还没找到相关接口
+            foreach (var fieldInfo in type.GetRuntimeFields())
+            {
+                if (fieldInfo.GetCustomAttribute<InjectAttribute>(true) != null)
                 {
                     fieldInfo.SetValueDirect(reference, GetOfType(fieldInfo.FieldType));
                 }
