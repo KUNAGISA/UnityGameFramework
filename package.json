@@ -1,10 +1,10 @@
 {
   "name": "com.kunagisa.framework",
   "displayName": "Game Framework",
-  "description": "Unity\u6e38\u620f\u6846\u67b6\uff0c\u5206\u5c42\u7ba1\u7406\u6a21\u5757",
-  "version": "1.3.8",
+  "description": "简单的分层框架，System和Command负责功能模块，Query负责查询功能，Model负责数据模块，Utility负责一些工具",
+  "version": "2.0.0",
   "author": {
-    "name": "\u96f6",
+    "name": "零",
     "email": "kunagisatomo@live.com"
   }
 }

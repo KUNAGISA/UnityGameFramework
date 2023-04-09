@@ -14,23 +14,14 @@ namespace Framework
     public interface IIOCContainer
     {
         void Register<T>(T instance, bool injectNow = false) where T : class;
-
         void UnRegister<T>();
-
+        bool UnRegister<T>(out T instance);
         void Inject(object instance);
-
-        void Inject<T>(ref T instance) where T : struct;
-
-        T Get<T>() where T : class;
-
-        T GetOfType<T>() where T : class;
-
-        bool TryGet<T>(out T instance) where T : class;
-
-        bool TryGetOfType<T>(out T instance) where T : class;
-
-        IEnumerable<T> EachOfType<T>() where T : class;
-
+        T Get<T>();
+        T GetOfType<T>();
+        bool TryGet<T>(out T instance);
+        bool TryGetOfType<T>(out T instance);
+        IEnumerable<T> EachOfType<T>();
         void Clear();
     }
 
@@ -54,6 +45,18 @@ namespace Framework
         public void UnRegister<T>()
         {
             m_instances.Remove(typeof(T));
+        }
+
+        public bool UnRegister<T>(out T instance)
+        {
+            if (m_instances.TryGetValue(typeof(T), out var value))
+            {
+                instance = (T)value;
+                return true;
+            }
+
+            instance = default;
+            return false;
         }
 
         public void Inject(object instance)
@@ -80,24 +83,9 @@ namespace Framework
             }
         }
 
-        public void Inject<T>(ref T instance) where T : struct
+        public T Get<T>()
         {
-            var type = typeof(T);
-            var reference = __makeref(instance);
-
-            // 只有Field有SetValueDirect，Property暂时还没找到相关接口
-            foreach (var fieldInfo in type.GetRuntimeFields())
-            {
-                if (fieldInfo.GetCustomAttribute<InjectAttribute>(true) != null)
-                {
-                    fieldInfo.SetValueDirect(reference, GetOfType(fieldInfo.FieldType));
-                }
-            }
-        }
-
-        public T Get<T>() where T : class
-        {
-            return m_instances.TryGetValue(typeof(T), out var instance) ? (instance as T) : null;
+            return m_instances.TryGetValue(typeof(T), out var instance) ? ((T)instance) : default;
         }
 
         public object Get(Type type)
@@ -105,11 +93,11 @@ namespace Framework
             return m_instances.TryGetValue(type, out var instance) ? instance : null;
         }
 
-        public T GetOfType<T>() where T : class
+        public T GetOfType<T>()
         {
             if (m_instances.TryGetValue(typeof(T), out var instance))
             {
-                return instance as T;
+                return (T)instance;
             }
             return m_instances.Values.OfType<T>().FirstOrDefault();
         }
@@ -130,7 +118,7 @@ namespace Framework
             return null;
         }
 
-        public bool TryGet<T>(out T result) where T : class
+        public bool TryGet<T>(out T result)
         {
             result = Get<T>();
             return result != null;
@@ -142,7 +130,7 @@ namespace Framework
             return result != null;
         }
 
-        public bool TryGetOfType<T>(out T result) where T : class
+        public bool TryGetOfType<T>(out T result)
         {
             result = GetOfType<T>();
             return result != null;
@@ -154,7 +142,7 @@ namespace Framework
             return result != null;
         }
 
-        public IEnumerable<T> EachOfType<T>() where T : class
+        public IEnumerable<T> EachOfType<T>()
         {
             return m_instances.Values.OfType<T>();
         }
