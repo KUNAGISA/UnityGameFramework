@@ -17,6 +17,9 @@ namespace Framework
     public abstract class Architecture<T> : IArchitecture where T : Architecture<T>, IArchitecture, new()
     {
         private static T m_architecture = null;
+
+        public static bool IsValid => m_architecture != null;
+
         public static IArchitecture Instance
         {
             get
@@ -35,8 +38,6 @@ namespace Framework
         }
 
         public static event Action<T> OnRegisterPatch;
-
-        public static bool IsValid => m_architecture != null;
 
         public static void MakeSureArchitecture()
         {
@@ -97,7 +98,7 @@ namespace Framework
             m_architecture = null;
         }
 
-        private readonly IIOCContainer m_iocContainer;
+        private readonly IIOCContainer m_iocContainer = null;
         private readonly TypeEventSystem m_eventSystem = new TypeEventSystem();
 
         private bool m_initialized = false;
@@ -197,7 +198,7 @@ namespace Framework
             new TCommand().Execute(this);
         }
 
-        public virtual void SendCommand<TCommand>(TCommand command) where TCommand : ICommand
+        public virtual void SendCommand<TCommand>(in TCommand command) where TCommand : ICommand
         {
             command.Execute(this);
         }
@@ -207,7 +208,7 @@ namespace Framework
             return new TCommand().Execute(this);
         }
 
-        public virtual TResult SendCommand<TResult, TCommand>(TCommand command) where TCommand : ICommand<TResult>
+        public virtual TResult SendCommand<TResult, TCommand>(in TCommand command) where TCommand : ICommand<TResult>
         {
             return command.Execute(this);
         }
@@ -217,7 +218,7 @@ namespace Framework
             return new TQuery().Do(this);
         }
 
-        public virtual TResult SendQuery<TResult, TQuery>(TQuery query) where TQuery : IQuery<TResult>
+        public virtual TResult SendQuery<TResult, TQuery>(in TQuery query) where TQuery : IQuery<TResult>
         {
             return query.Do(this);
         }
