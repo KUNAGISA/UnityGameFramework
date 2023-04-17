@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 
 namespace Framework
@@ -66,19 +65,20 @@ namespace Framework
                 return;
             }
 
-            var type = instance.GetType();
-            foreach(var fieldInfo in type.GetRuntimeFields())
+            var members = instance.GetType().GetMembers();
+            foreach (var memberInfo in members)
             {
-                if (fieldInfo.GetCustomAttribute<InjectAttribute>(true) != null)
+                var injectAttribute = memberInfo.GetCustomAttribute<InjectAttribute>(true);
+                if (injectAttribute != null)
                 {
-                    fieldInfo.SetValue(instance, GetOfType(fieldInfo.FieldType));
-                }
-            }
-            foreach (var propertyInfo in type.GetRuntimeProperties())
-            {
-                if (propertyInfo.GetCustomAttribute<InjectAttribute>(true) != null)
-                {
-                    propertyInfo.SetValue(instance, GetOfType(propertyInfo.PropertyType));
+                    if (memberInfo is PropertyInfo propertyInfo)
+                    {
+                        propertyInfo.SetValue(instance, GetOfType(propertyInfo.PropertyType), null);
+                    }
+                    else if (memberInfo is FieldInfo fieldInfo)
+                    {
+                        fieldInfo.SetValue(instance, GetOfType(fieldInfo.FieldType));
+                    }
                 }
             }
         }
@@ -95,11 +95,21 @@ namespace Framework
 
         public T GetOfType<T>()
         {
-            if (m_instances.TryGetValue(typeof(T), out var instance))
+            var target = typeof(T);
+            if (m_instances.TryGetValue(target, out var instance))
             {
                 return (T)instance;
             }
-            return m_instances.Values.OfType<T>().FirstOrDefault();
+
+            foreach(var (type, value) in m_instances)
+            {
+                if (target.IsAssignableFrom(type))
+                {
+                    return (T)value;
+                }
+            }
+
+            return default;
         }
 
         public object GetOfType(Type type)
@@ -144,7 +154,14 @@ namespace Framework
 
         public IEnumerable<T> EachOfType<T>()
         {
-            return m_instances.Values.OfType<T>();
+            var target = typeof(T);
+            foreach (var (type, value) in m_instances)
+            {
+                if (target.IsAssignableFrom(type))
+                {
+                    yield return (T)value;
+                }
+            }
         }
 
         public void Clear()
