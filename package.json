@@ -2,7 +2,7 @@
   "name": "com.kunagisa.framework",
   "displayName": "Game Framework",
   "description": "简单的分层框架，System和Command负责功能模块，Query负责查询功能，Model负责数据模块，Utility负责一些工具",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "author": {
     "name": "零",
     "email": "kunagisatomo@live.com"
