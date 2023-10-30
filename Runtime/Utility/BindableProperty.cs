@@ -14,34 +14,45 @@ namespace Framework
         void UnRegister(Action<T> onValueChanged);
     }
 
-    public interface IBindableProperty<T> : IReadonlyBindableProperty<T>
+    public interface IBindableProperty<T>
     {
-        new T Value { get; set; }
+        T Value { get; set; }
+
+        IUnRegister Register(Action<T> onValueChanged);
+
+        IUnRegister RegisterWithInitValue(Action<T> onValueChanged);
+
+        void UnRegister(Action<T> onValueChanged);
 
         void SetValueSilently(T value);
     }
 
-    public class BindableProperty<T> : IBindableProperty<T>, IUnRegisterable<Action<T>>
+    public sealed class BindableProperty<T> : IBindableProperty<T>, IReadonlyBindableProperty<T>, IUnRegisterable<Action<T>>
     {
         private static readonly IEqualityComparer<T> comparer = EqualityComparer<T>.Default;
-
-        private event Action<T> OnValueChanged;
 
         private T m_value = default;
         public T Value
         {
-            get => GetValue();
+            get => m_value;
             set
             {
                 if (!comparer.Equals(value, m_value))
                 {
-                    SetValue(value);
+                    m_value = value;
                     OnValueChanged?.Invoke(m_value);
                 }
             }
         }
 
-        public BindableProperty(T value = default)
+        event Action<T> OnValueChanged;
+
+        public BindableProperty()
+        {
+
+        }
+
+        public BindableProperty(T value)
         {
             m_value = value;
         }
@@ -68,19 +79,9 @@ namespace Framework
             OnValueChanged -= onValueChanged;
         }
 
-        protected virtual T GetValue()
-        {
-            return m_value;
-        }
-
-        protected virtual void SetValue(T value)
-        {
-            m_value = value;
-        }
-
         public static implicit operator T (BindableProperty<T> property)
         {
-            return property.Value;
+            return property.m_value;
         }
     }
 }
