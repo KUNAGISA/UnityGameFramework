@@ -69,17 +69,6 @@ namespace Framework
 
     }
 
-    public interface IArchitecture : ISystemContext, IModelContext, IUtilityContext, ICommandContext, IQueryContext
-    {
-        void RegisterSystem<TSystem>(TSystem system) where TSystem : class, ISystem;
-        void RegisterModel<TModel>(TModel model) where TModel : class, IModel;
-        void RegisterUtility<TUtility>(TUtility utility) where TUtility : class, IUtility;
-
-        void UnRegisterSystem<TSystem>() where TSystem : class, ISystem;
-        void UnRegisterModel<TModel>() where TModel : class, IModel;
-        void UnRegisterUtility<TUtility>() where TUtility : class, IUtility;
-    }
-
     public interface IUtility
     {
         void Init();
@@ -115,5 +104,16 @@ namespace Framework
     public interface IQuery<TResult>
     {
         TResult Do(IQueryContext context);
+    }
+
+    public interface IArchitecture : ISystemContext, IModelContext, IUtilityContext, ICommandContext, IQueryContext
+    {
+        void RegisterSystem<TSystem>(TSystem system) where TSystem : class, ISystem;
+        void RegisterModel<TModel>(TModel model) where TModel : class, IModel;
+        void RegisterUtility<TUtility>(TUtility utility) where TUtility : class, IUtility;
+
+        void UnRegisterSystem<TSystem>() where TSystem : class, ISystem;
+        void UnRegisterModel<TModel>() where TModel : class, IModel;
+        void UnRegisterUtility<TUtility>() where TUtility : class, IUtility;
     }
 }
