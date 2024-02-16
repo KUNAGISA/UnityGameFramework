@@ -1,6 +1,6 @@
 ### 简单的分层框架
 
-这是一个基于[`QFramework`](https://github.com/liangxiegame/QFramework)再改造的框架，简单的分为`System`，`Model`，`Utility`三层，再加上`Command`和`Query`作为通用功能处理。t同层之间理论不允许互相访问，下层不允许访问上层。
+这是一个基于[`QFramework`](https://github.com/liangxiegame/QFramework)再改造的框架，简单的分为`System`，`Model`，`Utility`三层，再加上`Command`和`Query`作为通用功能处理。同层之间理论不允许互相访问，下层不允许访问上层。
 
 - `System`层是模块化的逻辑功能，给多个`Controller`提供共享的逻辑功能，允许访问`System`(但注意不要循环引用)，`Model`，`Utility`，可以执行`Command`和`Query`，可以发送和接收事件。
 - `Model`层是数据模块，给`System`层和`Controller`提供共享的数据功能。允许访问`Utility`，可以发送事件。
