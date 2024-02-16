@@ -20,8 +20,13 @@
 
     public interface ICanInit
     {
+#if CUSTOM_ARCHITECTURE
+        void Init();
+        void Destroy();
+#else
         protected internal void Init();
         protected internal void Destroy();
+#endif
     }
 
     public interface ICanGetUtility : IBelongArchitecture
