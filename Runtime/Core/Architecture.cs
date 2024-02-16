@@ -16,14 +16,11 @@ namespace Framework
         void UnRegisterSystem<TSystem>() where TSystem : class, ISystem;
         TSystem GetSystem<TSystem>() where TSystem : class, ISystem;
 
-        void SendCommand<TCommand>() where TCommand : ICommand, new();
         void SendCommand<TCommand>(TCommand command) where TCommand : ICommand;
 
-        TResult SendCommand<TResult, TCommand>() where TCommand : ICommand<TResult>, new();
         TResult SendCommand<TResult>(ICommand<TResult> command);
         TResult SendCommand<TResult, TCommand>(TCommand command) where TCommand : struct, ICommand<TResult>;
 
-        TResult SendQuery<TResult, TQuery>() where TQuery : IQuery<TResult>, new();
         TResult SendQuery<TResult>(IQuery<TResult> query);
         TResult SendQuery<TResult, TQuery>(TQuery query) where TQuery : struct, IQuery<TResult>;
 
@@ -189,19 +186,9 @@ namespace Framework
             return m_iocContainer.Get<TSystem>();
         }
 
-        public void SendCommand<TCommand>() where TCommand : ICommand, new()
-        {
-            new TCommand().Execute(this);
-        }
-
         public void SendCommand<TCommand>(TCommand command) where TCommand : ICommand
         {
             command.Execute(this);
-        }
-
-        public TResult SendCommand<TResult, TCommand>() where TCommand : ICommand<TResult>, new()
-        {
-            return new TCommand().Execute(this);
         }
 
         public TResult SendCommand<TResult>(ICommand<TResult> command)
@@ -212,11 +199,6 @@ namespace Framework
         public TResult SendCommand<TResult, TCommand>(TCommand command) where TCommand : struct, ICommand<TResult>
         {
             return command.Execute(this);
-        }
-
-        public TResult SendQuery<TResult, TQuery>() where TQuery : IQuery<TResult>, new()
-        {
-            return new TQuery().Do(this);
         }
 
         public TResult SendQuery<TResult>(IQuery<TResult> query)
