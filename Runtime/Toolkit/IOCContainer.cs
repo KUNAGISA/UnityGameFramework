@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Framework
 {
@@ -48,13 +49,7 @@ namespace Framework
 
         public IEnumerable<T> Select<T>() where T : class
         {
-            foreach (var (_, @object) in m_instances)
-            {
-                if (@object is T instance)
-                {
-                    yield return instance;
-                }
-            }
+            return m_instances.Values.OfType<T>();
         }
     }
 }

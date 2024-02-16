@@ -2,7 +2,39 @@
 
 namespace Framework
 {
-    public abstract class Architecture<T> : IArchitecture where T : Architecture<T>, new()
+    public interface IArchitecture
+    {
+        void RegisterUtility<TUtility>(TUtility utility) where TUtility : class, IUtility;
+        void UnRegisterUtility<TUtility>() where TUtility : class, IUtility;
+        TUtility GetUtility<TUtility>() where TUtility : class, IUtility;
+
+        void RegisterModel<TModel>(TModel model) where TModel : class, IModel;
+        void UnRegisterModel<TModel>() where TModel : class, IModel;
+        TModel GetModel<TModel>()where TModel : class, IModel;
+
+        void RegisterSystem<TSystem>(TSystem system) where TSystem : class, ISystem;
+        void UnRegisterSystem<TSystem>() where TSystem : class, ISystem;
+        TSystem GetSystem<TSystem>() where TSystem : class, ISystem;
+
+        void SendCommand<TCommand>() where TCommand : ICommand, new();
+        void SendCommand<TCommand>(TCommand command) where TCommand : ICommand;
+
+        TResult SendCommand<TResult, TCommand>() where TCommand : ICommand<TResult>, new();
+        TResult SendCommand<TResult>(ICommand<TResult> command);
+        TResult SendCommand<TResult, TCommand>(TCommand command) where TCommand : struct, ICommand<TResult>;
+
+        TResult SendQuery<TResult, TQuery>() where TQuery : IQuery<TResult>, new();
+        TResult SendQuery<TResult>(IQuery<TResult> query);
+        TResult SendQuery<TResult, TQuery>(TQuery query) where TQuery : struct, IQuery<TResult>;
+
+        IUnRegister RegisterEvent<TEvent>(Action<TEvent> onEvent);
+        void UnRegisterEvent<TEvent>(Action<TEvent> onEvent);
+
+        void SendEvent<TEvent>() where TEvent : new();
+        void SendEvent<TEvent>(TEvent @event);
+    }
+
+    public abstract class Architecture<T> : IArchitecture, ICommandContext, IQueryContext where T : Architecture<T>, new()
     {
         private static T m_architecture = null;
         public static IArchitecture Instance
@@ -57,14 +89,17 @@ namespace Framework
             foreach (var system in m_architecture.m_iocContainer.Select<ISystem>())
             {
                 system.Destroy();
+                system.SetArchitecture(null);
             }
             foreach (var model in m_architecture.m_iocContainer.Select<IModel>())
             {
                 model.Destroy();
+                model.SetArchitecture(null);
             }
             foreach (var utility in m_architecture.m_iocContainer.Select<IUtility>())
             {
                 utility.Destroy();
+                utility.SetArchitecture(null);
             }
 
             m_architecture = null;
@@ -72,44 +107,20 @@ namespace Framework
 
         public static event Action<T> OnRegisterPatch;
 
-        protected abstract void OnInit();
-        protected abstract void OnDestroy();
-
         private bool m_initialize = false;
         private readonly TypeEventSystem m_eventSystem = new TypeEventSystem();
         private readonly IOCContainer m_iocContainer = new IOCContainer();
 
-        public void RegisterSystem<TSystem>(TSystem system) where TSystem : class, ISystem
-        {
-            UnRegisterSystem<TSystem>();
+        protected abstract void OnInit();
+        protected abstract void OnDestroy();
 
-            system.SetContext(this);
-            m_iocContainer.Register(system);
+        IArchitecture IBelongArchitecture.GetArchitecture() => m_architecture;
 
-            if (m_initialize)
-            {
-                system.Init();
-            }
-        }
-
-        public void RegisterModel<TModel>(TModel model) where TModel : class, IModel
-        {
-            UnRegisterModel<TModel>();
-
-            model.SetContext(this);
-            m_iocContainer.Register(model);
-
-            if (m_initialize)
-            {
-                model.Init();
-            }
-        }
-
-        public void RegisterUtility<TUtility>(TUtility utility) where TUtility : class, IUtility
+        void IArchitecture.RegisterUtility<TUtility>(TUtility utility)
         {
             UnRegisterUtility<TUtility>();
 
-            utility.SetContext(this);
+            utility.SetArchitecture(this);
             m_iocContainer.Register(utility);
 
             if (m_initialize)
@@ -118,12 +129,30 @@ namespace Framework
             }
         }
 
-        public void UnRegisterSystem<TSystem>() where TSystem : class, ISystem
+        public void UnRegisterUtility<TUtility>() where TUtility : class, IUtility
         {
-            if (m_iocContainer.UnRegister<TSystem>(out var system))
+            if (m_iocContainer.UnRegister<TUtility>(out var utility))
             {
-                system.Destroy();
-                system.SetContext(null);
+                utility.Destroy();
+                utility.SetArchitecture(null);
+            }
+        }
+
+        public TUtility GetUtility<TUtility>() where TUtility : class, IUtility
+        {
+            return m_iocContainer.Get<TUtility>();
+        }
+
+        public void RegisterModel<TModel>(TModel model) where TModel : class, IModel
+        {
+            UnRegisterModel<TModel>();
+
+            model.SetArchitecture(this);
+            m_iocContainer.Register(model);
+
+            if (m_initialize)
+            {
+                model.Init();
             }
         }
 
@@ -132,16 +161,26 @@ namespace Framework
             if (m_iocContainer.UnRegister<TModel>(out var model))
             {
                 model.Destroy();
-                model.SetContext(null);
+                model.SetArchitecture(null);
             }
         }
 
-        public void UnRegisterUtility<TUtility>() where TUtility : class, IUtility
+        public TModel GetModel<TModel>() where TModel : class, IModel
         {
-            if (m_iocContainer.UnRegister<TUtility>(out var utility))
+            return m_iocContainer.Get<TModel>();
+        }
+
+        public void RegisterSystem<TSystem>(TSystem system) where TSystem : class, ISystem
+        {
+            UnRegisterSystem<TSystem>();
+        }
+
+        public void UnRegisterSystem<TSystem>() where TSystem : class, ISystem
+        {
+            if (m_iocContainer.UnRegister<TSystem>(out var system))
             {
-                utility.Destroy();
-                utility.SetContext(null);
+                system.Destroy();
+                system.SetArchitecture(null);
             }
         }
 
@@ -150,22 +189,12 @@ namespace Framework
             return m_iocContainer.Get<TSystem>();
         }
 
-        public TModel GetModel<TModel>() where TModel : class, IModel
-        {
-            return m_iocContainer.Get<TModel>();
-        }
-
-        public TUtility GetUtility<TUtility>() where TUtility : class, IUtility
-        {
-            return m_iocContainer.Get<TUtility>();
-        }
-
         public void SendCommand<TCommand>() where TCommand : ICommand, new()
         {
             new TCommand().Execute(this);
         }
 
-        public void SendCommand<TCommand>(in TCommand command) where TCommand : ICommand
+        public void SendCommand<TCommand>(TCommand command) where TCommand : ICommand
         {
             command.Execute(this);
         }
@@ -175,7 +204,12 @@ namespace Framework
             return new TCommand().Execute(this);
         }
 
-        public TResult SendCommand<TResult, TCommand>(in TCommand command) where TCommand : ICommand<TResult>
+        public TResult SendCommand<TResult>(ICommand<TResult> command)
+        {
+            return command.Execute(this);
+        }
+
+        public TResult SendCommand<TResult, TCommand>(TCommand command) where TCommand : struct, ICommand<TResult>
         {
             return command.Execute(this);
         }
@@ -185,7 +219,12 @@ namespace Framework
             return new TQuery().Do(this);
         }
 
-        public TResult SendQuery<TResult, TQuery>(in TQuery query) where TQuery : IQuery<TResult>
+        public TResult SendQuery<TResult>(IQuery<TResult> query)
+        {
+            return query.Do(this);
+        }
+
+        public TResult SendQuery<TResult, TQuery>(TQuery query) where TQuery : struct, IQuery<TResult>
         {
             return query.Do(this);
         }
