@@ -48,7 +48,7 @@ namespace Framework
 
         public IEnumerable<T> Select<T>() where T : class
         {
-            foreach(var (key, @object) in m_instances)
+            foreach (var (_, @object) in m_instances)
             {
                 if (@object is T instance)
                 {

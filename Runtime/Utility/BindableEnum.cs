@@ -52,7 +52,7 @@ namespace Framework
             m_value = value;
         }
 
-        public static implicit operator T(BindableEnum<T> property)
+        public static implicit operator T (BindableEnum<T> property)
         {
             return property.m_value;
         }

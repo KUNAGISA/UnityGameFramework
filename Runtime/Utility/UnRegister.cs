@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Framework
+﻿namespace Framework
 {
     public interface IUnRegister
     {
