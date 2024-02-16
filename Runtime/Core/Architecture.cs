@@ -135,7 +135,7 @@ namespace Framework
             }
         }
 
-        public TUtility GetUtility<TUtility>() where TUtility : class, IUtility
+        virtual public TUtility GetUtility<TUtility>() where TUtility : class, IUtility
         {
             return m_iocContainer.Get<TUtility>();
         }
@@ -162,7 +162,7 @@ namespace Framework
             }
         }
 
-        public TModel GetModel<TModel>() where TModel : class, IModel
+        virtual public TModel GetModel<TModel>() where TModel : class, IModel
         {
             return m_iocContainer.Get<TModel>();
         }
@@ -181,32 +181,32 @@ namespace Framework
             }
         }
 
-        public TSystem GetSystem<TSystem>() where TSystem : class, ISystem
+        virtual public TSystem GetSystem<TSystem>() where TSystem : class, ISystem
         {
             return m_iocContainer.Get<TSystem>();
         }
 
-        public void SendCommand<TCommand>(TCommand command) where TCommand : ICommand
+        virtual public void SendCommand<TCommand>(TCommand command) where TCommand : ICommand
         {
             command.Execute(this);
         }
 
-        public TResult SendCommand<TResult>(ICommand<TResult> command)
+        virtual public TResult SendCommand<TResult>(ICommand<TResult> command)
         {
             return command.Execute(this);
         }
 
-        public TResult SendCommand<TResult, TCommand>(TCommand command) where TCommand : struct, ICommand<TResult>
+        virtual public TResult SendCommand<TResult, TCommand>(TCommand command) where TCommand : struct, ICommand<TResult>
         {
             return command.Execute(this);
         }
 
-        public TResult SendQuery<TResult>(IQuery<TResult> query)
+        virtual public TResult SendQuery<TResult>(IQuery<TResult> query)
         {
             return query.Do(this);
         }
 
-        public TResult SendQuery<TResult, TQuery>(TQuery query) where TQuery : struct, IQuery<TResult>
+        virtual public TResult SendQuery<TResult, TQuery>(TQuery query) where TQuery : struct, IQuery<TResult>
         {
             return query.Do(this);
         }
