@@ -111,6 +111,8 @@ namespace Framework
         protected abstract void OnInit();
         protected abstract void OnDestroy();
 
+        protected IOCContainer IOCContainer => m_iocContainer;
+
         IArchitecture IBelongArchitecture.GetArchitecture() => m_architecture;
 
         public void RegisterUtility<TUtility>(TUtility utility) where TUtility : class, IUtility
