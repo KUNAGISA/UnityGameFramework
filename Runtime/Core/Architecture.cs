@@ -20,9 +20,11 @@ namespace Framework
 
         TResult SendCommand<TResult>(ICommand<TResult> command);
         TResult SendCommand<TResult, TCommand>(TCommand command) where TCommand : struct, ICommand<TResult>;
+        void SendCommand<TResult, TCommand>(TCommand command, out TResult result) where TCommand : ICommand<TResult>;
 
         TResult SendQuery<TResult>(IQuery<TResult> query);
         TResult SendQuery<TResult, TQuery>(TQuery query) where TQuery : struct, IQuery<TResult>;
+        void SendQuery<TResult, TQuery>(TQuery query, out TResult result) where TQuery : IQuery<TResult>;
 
         IUnRegister RegisterEvent<TEvent>(Action<TEvent> onEvent);
         void UnRegisterEvent<TEvent>(Action<TEvent> onEvent);
@@ -203,6 +205,11 @@ namespace Framework
             return command.Execute(this);
         }
 
+        virtual public void SendCommand<TResult, TCommand>(TCommand command, out TResult result) where TCommand : ICommand<TResult>
+        {
+            result = command.Execute(this);
+        }
+
         virtual public TResult SendQuery<TResult>(IQuery<TResult> query)
         {
             return query.Do(this);
@@ -211,6 +218,11 @@ namespace Framework
         virtual public TResult SendQuery<TResult, TQuery>(TQuery query) where TQuery : struct, IQuery<TResult>
         {
             return query.Do(this);
+        }
+
+        virtual public void SendQuery<TResult, TQuery>(TQuery query, out TResult result) where TQuery : IQuery<TResult>
+        {
+            result = query.Do(this);
         }
 
         public IUnRegister RegisterEvent<TEvent>(Action<TEvent> onEvent)

@@ -34,9 +34,9 @@ namespace Framework
             return context.GetArchitecture().SendCommand<TResult, TCommand>(command);
         }
 
-        public static void SendCommand<TResult, TCommand>(this ICanSendCommand context, TCommand command, out TResult result) where TCommand : struct, ICommand<TResult>
+        public static void SendCommand<TResult, TCommand>(this ICanSendCommand context, TCommand command, out TResult result) where TCommand : ICommand<TResult>
         {
-            result = context.GetArchitecture().SendCommand<TResult, TCommand>(command);
+            context.GetArchitecture().SendCommand<TResult, TCommand>(command, out result);
         }
 
         public static TResult SendQuery<TResult>(this ICanSendQuery context, IQuery<TResult> command)
@@ -49,9 +49,9 @@ namespace Framework
             return context.GetArchitecture().SendQuery<TResult, TQuery>(command);
         }
 
-        public static void SendQuery<TResult, TQuery>(this ICanSendQuery context, TQuery command, out TResult result) where TQuery : struct, IQuery<TResult>
+        public static void SendQuery<TResult, TQuery>(this ICanSendQuery context, TQuery command, out TResult result) where TQuery : IQuery<TResult>
         {
-            result = context.GetArchitecture().SendQuery<TResult, TQuery>(command);
+            context.GetArchitecture().SendQuery(command, out result);
         }
 
         public static IUnRegister RegisterEvent<TEvent>(this ICanRegisterEvent context, Action<TEvent> onEvent)
