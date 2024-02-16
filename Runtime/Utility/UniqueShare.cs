@@ -2,7 +2,7 @@
 
 namespace Framework
 {
-    public struct UnuqueShare<T> : IDisposable where T : class, new()
+    public struct UniqueShare<T> : IDisposable where T : class, new()
     {
         private static T shareInstance = null;
 
@@ -13,7 +13,7 @@ namespace Framework
 
         private T m_keepInstance;
 
-        public UnuqueShare(out T value)
+        public UniqueShare(out T value)
         {
             m_keepInstance = value = shareInstance ?? new T();
             shareInstance = null;
