@@ -116,7 +116,7 @@ namespace Framework
 
         IArchitecture IBelongArchitecture.GetArchitecture() => m_architecture;
 
-        void IArchitecture.RegisterUtility<TUtility>(TUtility utility)
+        public void RegisterUtility<TUtility>(TUtility utility) where TUtility : class, IUtility
         {
             UnRegisterUtility<TUtility>();
 
