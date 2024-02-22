@@ -19,39 +19,44 @@ namespace Framework
             return context.GetArchitecture().GetSystem<TSystem>();
         }
 
+        /// <summary>
+        /// Call a command.
+        /// </summary>
         public static void SendCommand<TCommand>(this ICanSendCommand context, TCommand command) where TCommand : ICommand
         {
             context.GetArchitecture().SendCommand(command);
         }
 
+        /// <summary>
+        /// Call a command and return result.Use <see cref="SendCommand{TResult, TCommand}(ICanSendCommand, TCommand)"/> if command is value type, or it will be boxed.
+        /// </summary>
         public static TResult SendCommand<TResult>(this ICanSendCommand context, ICommand<TResult> command)
         {
             return context.GetArchitecture().SendCommand(command);
         }
 
-        public static TResult SendCommand<TResult, TCommand>(this ICanSendCommand context, TCommand command) where TCommand : struct, ICommand<TResult>
+        /// <summary>
+        /// Call a command and return result.
+        /// </summary>
+        public static TResult SendCommand<TResult, TCommand>(this ICanSendCommand context, TCommand command) where TCommand : ICommand<TResult>
         {
             return context.GetArchitecture().SendCommand<TResult, TCommand>(command);
         }
 
-        public static void SendCommand<TResult, TCommand>(this ICanSendCommand context, TCommand command, out TResult result) where TCommand : ICommand<TResult>
-        {
-            context.GetArchitecture().SendCommand<TResult, TCommand>(command, out result);
-        }
-
+        /// <summary>
+        /// Call a query and return result.Use <see cref="SendQuery{TResult, TQuery}(ICanSendQuery, TQuery)"/> if query is value type, or it will be boxed.
+        /// </summary>
         public static TResult SendQuery<TResult>(this ICanSendQuery context, IQuery<TResult> command)
         {
             return context.GetArchitecture().SendQuery(command);
         }
 
-        public static TResult SendQuery<TResult, TQuery>(this ICanSendQuery context, TQuery command) where TQuery : struct, IQuery<TResult>
+        /// <summary>
+        /// Call a query and return result.
+        /// </summary>
+        public static TResult SendQuery<TResult, TQuery>(this ICanSendQuery context, TQuery command) where TQuery : IQuery<TResult>
         {
             return context.GetArchitecture().SendQuery<TResult, TQuery>(command);
-        }
-
-        public static void SendQuery<TResult, TQuery>(this ICanSendQuery context, TQuery command, out TResult result) where TQuery : IQuery<TResult>
-        {
-            context.GetArchitecture().SendQuery(command, out result);
         }
 
         public static IUnRegister RegisterEvent<TEvent>(this ICanRegisterEvent context, Action<TEvent> onEvent)

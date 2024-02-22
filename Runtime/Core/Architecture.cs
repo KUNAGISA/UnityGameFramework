@@ -16,15 +16,28 @@ namespace Framework
         void UnRegisterSystem<TSystem>() where TSystem : class, ISystem;
         TSystem GetSystem<TSystem>() where TSystem : class, ISystem;
 
+        /// <summary>
+        /// Call a command.
+        /// </summary>
         void SendCommand<TCommand>(TCommand command) where TCommand : ICommand;
 
+        /// <summary>
+        /// Call a command and return result.Use <see cref="SendCommand{TResult, TCommand}(TCommand)"/> if command is value type, or it will be boxed.
+        /// </summary>
         TResult SendCommand<TResult>(ICommand<TResult> command);
-        TResult SendCommand<TResult, TCommand>(TCommand command) where TCommand : struct, ICommand<TResult>;
-        void SendCommand<TResult, TCommand>(TCommand command, out TResult result) where TCommand : ICommand<TResult>;
+        /// <summary>
+        /// Call a command and return result.
+        /// </summary>
+        TResult SendCommand<TResult, TCommand>(TCommand command) where TCommand : ICommand<TResult>;
 
+        /// <summary>
+        /// Call a query and return result.Use <see cref="SendQuery{TResult}(IQuery{TResult})"/> if query is value type, or it will be boxed.
+        /// </summary>
         TResult SendQuery<TResult>(IQuery<TResult> query);
-        TResult SendQuery<TResult, TQuery>(TQuery query) where TQuery : struct, IQuery<TResult>;
-        void SendQuery<TResult, TQuery>(TQuery query, out TResult result) where TQuery : IQuery<TResult>;
+        /// <summary>
+        /// Call a query and return result.
+        /// </summary>
+        TResult SendQuery<TResult, TQuery>(TQuery query) where TQuery : IQuery<TResult>;
 
         IUnRegister RegisterEvent<TEvent>(Action<TEvent> onEvent);
         void UnRegisterEvent<TEvent>(Action<TEvent> onEvent);
@@ -203,34 +216,24 @@ namespace Framework
             command.Execute(this);
         }
 
-        virtual public TResult SendCommand<TResult>(ICommand<TResult> command)
+        public TResult SendCommand<TResult>(ICommand<TResult> command)
+        {
+            return SendCommand<TResult, ICommand<TResult>>(command);
+        }
+
+        virtual public TResult SendCommand<TResult, TCommand>(TCommand command) where TCommand : ICommand<TResult>
         {
             return command.Execute(this);
         }
 
-        virtual public TResult SendCommand<TResult, TCommand>(TCommand command) where TCommand : struct, ICommand<TResult>
+        public TResult SendQuery<TResult>(IQuery<TResult> query)
         {
-            return command.Execute(this);
+            return SendQuery<TResult, IQuery<TResult>>(query);
         }
 
-        virtual public void SendCommand<TResult, TCommand>(TCommand command, out TResult result) where TCommand : ICommand<TResult>
-        {
-            result = command.Execute(this);
-        }
-
-        virtual public TResult SendQuery<TResult>(IQuery<TResult> query)
+        virtual public TResult SendQuery<TResult, TQuery>(TQuery query) where TQuery : IQuery<TResult>
         {
             return query.Do(this);
-        }
-
-        virtual public TResult SendQuery<TResult, TQuery>(TQuery query) where TQuery : struct, IQuery<TResult>
-        {
-            return query.Do(this);
-        }
-
-        virtual public void SendQuery<TResult, TQuery>(TQuery query, out TResult result) where TQuery : IQuery<TResult>
-        {
-            result = query.Do(this);
         }
 
         public IUnRegister RegisterEvent<TEvent>(Action<TEvent> onEvent)
