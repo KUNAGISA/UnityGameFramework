@@ -115,7 +115,7 @@ namespace Framework
 
         protected IOCContainer IOCContainer => m_iocContainer;
 
-        IArchitecture IBelongArchitecture.GetArchitecture() => m_architecture;
+        IArchitecture IBelongArchitecture.GetArchitecture() => this;
 
         public void RegisterUtility<TUtility>(TUtility utility) where TUtility : class, IUtility
         {
@@ -174,6 +174,14 @@ namespace Framework
         public void RegisterSystem<TSystem>(TSystem system) where TSystem : class, ISystem
         {
             UnRegisterSystem<TSystem>();
+
+            system.SetArchitecture(this);
+            m_iocContainer.Register(system);
+
+            if (m_initialize)
+            {
+                system.Init();
+            }
         }
 
         public void UnRegisterSystem<TSystem>() where TSystem : class, ISystem
