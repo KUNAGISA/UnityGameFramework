@@ -38,7 +38,7 @@ namespace Framework
         /// <summary>
         /// Call a command and return result.
         /// </summary>
-        public static TResult SendCommand<TResult, TCommand>(this ICanSendCommand context, TCommand command) where TCommand : ICommand<TResult>
+        public static TResult SendCommand<TResult, TCommand>(this ICanSendCommand context, TCommand command) where TCommand : struct, ICommand<TResult>
         {
             return context.GetArchitecture().SendCommand<TResult, TCommand>(command);
         }
@@ -54,7 +54,7 @@ namespace Framework
         /// <summary>
         /// Call a query and return result.
         /// </summary>
-        public static TResult SendQuery<TResult, TQuery>(this ICanSendQuery context, TQuery command) where TQuery : IQuery<TResult>
+        public static TResult SendQuery<TResult, TQuery>(this ICanSendQuery context, TQuery command) where TQuery : struct, IQuery<TResult>
         {
             return context.GetArchitecture().SendQuery<TResult, TQuery>(command);
         }
