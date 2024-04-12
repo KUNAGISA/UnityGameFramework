@@ -46,7 +46,7 @@ namespace Framework
         void SendEvent<TEvent>(TEvent @event);
     }
 
-    public abstract class Architecture<T> : IArchitecture, ICommandContext, IQueryContext where T : Architecture<T>, new()
+    public abstract class Architecture<T> : IArchitecture, ICommandProvider, IQueryProvider where T : Architecture<T>, new()
     {
         private static T m_architecture = null;
         public static IArchitecture Instance
@@ -129,6 +129,11 @@ namespace Framework
         protected IOCContainer IOCContainer => m_iocContainer;
 
         IArchitecture IBelongArchitecture.GetArchitecture() => this;
+
+        protected bool HasInstance<TInstance>() where TInstance : class
+        {
+            return m_iocContainer.Contains<TInstance>();
+        }
 
         public void RegisterUtility<TUtility>(TUtility utility) where TUtility : class, IUtility
         {

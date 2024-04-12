@@ -1,13 +1,13 @@
 ﻿namespace Framework
 {
-    public interface IQueryContext : ICanGetUtility, ICanGetModel, ICanGetSystem, ICanSendQuery
+    public interface IQueryProvider : ICanGetUtility, ICanGetModel, ICanGetSystem, ICanSendQuery
     {
 
     }
 
     public interface IQuery<out TResult>
     {
-        TResult Do(IQueryContext context);
+        protected internal TResult Do(IQueryProvider provider);
     }
 
     /// <summary>
@@ -15,8 +15,8 @@
     /// </summary>
     public abstract class AbstractQuery<TResult> : IQuery<TResult>
     {
-        protected abstract TResult Do(IQueryContext context);
+        protected abstract TResult Do(IQueryProvider provider);
 
-        TResult IQuery<TResult>.Do(IQueryContext context) => Do(context);
+        TResult IQuery<TResult>.Do(IQueryProvider provider) => Do(provider);
     }
 }

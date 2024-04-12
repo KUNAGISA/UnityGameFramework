@@ -8,14 +8,14 @@ namespace Framework
 
     }
 
-    public class EasyEvent : IEasyEvent, IUnRegisterable<Action>
+    public class EasyEvent : IEasyEvent, IDeregister<Action>
     {
-        private event Action OnEvent;
+        public event Action OnEvent;
 
         public IUnRegister Register(Action onEvent)
         {
             OnEvent += onEvent;
-            return new UnRegisterableUnRegister<Action>(this, onEvent);
+            return new DeregisterUnRegister<Action>(this, onEvent);
         }
 
         public void UnRegister(Action onEvent)
@@ -29,14 +29,14 @@ namespace Framework
         }
     }
 
-    public class EasyEvent<T> : IEasyEvent, IUnRegisterable<Action<T>>
+    public class EasyEvent<T> : IEasyEvent, IDeregister<Action<T>>
     {
-        private event Action<T> OnEvent;
+        public event Action<T> OnEvent;
 
         public IUnRegister Register(Action<T> onEvent)
         {
             OnEvent += onEvent;
-            return new UnRegisterableUnRegister<Action<T>>(this, onEvent);
+            return new DeregisterUnRegister<Action<T>>(this, onEvent);
         }
 
         public void UnRegister(Action<T> onEvent)
@@ -52,16 +52,16 @@ namespace Framework
 
     public class EasyEvents
     {
-        private readonly Dictionary<Type, IEasyEvent> m_typeEvents = new Dictionary<Type, IEasyEvent>();
+        private readonly Dictionary<Type, IEasyEvent> m_events = new Dictionary<Type, IEasyEvent>();
 
         public void AddEvent<T>() where T : IEasyEvent, new()
         {
-            m_typeEvents.Add(typeof(T), new T());
+            m_events.Add(typeof(T), new T());
         }
 
         public T GetEvent<T>() where T : IEasyEvent
         {
-            if (m_typeEvents.TryGetValue(typeof(T), out var easyEvent))
+            if (m_events.TryGetValue(typeof(T), out var easyEvent))
             {
                 return (T)easyEvent;
             }
@@ -71,17 +71,17 @@ namespace Framework
         public T GetOrAddEvent<T>() where T : IEasyEvent, new()
         {
             var type = typeof(T);
-            if (!m_typeEvents.TryGetValue(type, out var easyEvent))
+            if (!m_events.TryGetValue(type, out var easyEvent))
             {
                 easyEvent = new T();
-                m_typeEvents.Add(type, easyEvent);
+                m_events.Add(type, easyEvent);
             }
             return (T)easyEvent;
         }
 
         public void Clear()
         {
-            m_typeEvents.Clear();
+            m_events.Clear();
         }
     }
 }

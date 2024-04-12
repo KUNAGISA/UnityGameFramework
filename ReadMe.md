@@ -10,20 +10,28 @@
 
 > 关于`Controller`层
 
-`QFramework`中的`Controller`层在这里干掉了，相对的，`Controller`可以直接访问`Architecture`对象。也可以考虑如下处理
+`QFramework`中的`Controller`层在这框架中不直接提供，可以每个项目自己定义一个对应的接口，参考如下
 
 ```c#
-using UnityEngine;
-using Framework;
-
-public abstract class ArchitectureMono<T> : Monobehaviour where T : Architecture<T>, new()
+internal interface IController : ICommandProvider, IQueryProvider, ICanGetModel, ICanGetSystem, ICanGetUtility, ICanSendCommand, ICanSendEvent, ICanSendQuery, ICanRegisterEvent
 {
-    protected static IArchitecture Context => Architecture<T>.Instance;
+    IArchitecture IBelongArchitecture.GetArchitecture() => MyArchitecture.Instance;
 }
+```
 
-public abstract class AbstractController<T> where T : Architecture<T>, new()
+> 关于`ICommandProvider`和`IQueryProvider`两个接口
+
+这两个接口分别是`ICommand`和`IQuery`执行接口中传入的对象，`QFramwork`中`Command`和`Query`也是使用扩展接口的方式去处理，但如果是结构体的话会有装箱，所以这里就改成了把框架作为`Provider`传递进去使用。
+
+同时`IController`和`ISystem`也都继承了这两个接口，所以如果觉得`Command`和`Query`做成对象不太好用的话（比如考虑到GC时用结构体，但`C#`的泛型不会推到`TResult`导致调用时需要显式填写返回类型，如`this.SendQuery<SomeQuery, int>(new SomeQuery())`），可以做成静态方法把对象传入使用
+
+```c#
+public static class BagCommandFuncs
 {
-    protected static IArchitecture Context => Architecture<T>.Instance;
+    public static void AddSomeItem(ICommandProvider provider, int itemId, int amount)
+    {
+        //...添加道具
+    }
 }
 ```
 

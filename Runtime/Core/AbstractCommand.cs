@@ -1,18 +1,18 @@
 ﻿namespace Framework
 {
-    public interface ICommandContext : ICanGetUtility, ICanGetModel, ICanGetSystem, ICanSendCommand, ICanSendQuery, ICanSendEvent
+    public interface ICommandProvider : ICanGetUtility, ICanGetModel, ICanGetSystem, ICanSendCommand, ICanSendQuery, ICanSendEvent
     {
 
     }
 
     public interface ICommand
     {
-        void Execute(ICommandContext context);
+        protected internal void Execute(ICommandProvider provider);
     }
 
     public interface ICommand<out TResult>
     {
-        TResult Execute(ICommandContext context);
+        protected internal TResult Execute(ICommandProvider provider);
     }
 
     /// <summary>
@@ -20,9 +20,9 @@
     /// </summary>
     public abstract class AbstractCommand : ICommand
     {
-        protected abstract void Execute(ICommandContext context);
+        protected abstract void Execute(ICommandProvider provider);
 
-        void ICommand.Execute(ICommandContext context) => Execute(context);
+        void ICommand.Execute(ICommandProvider provider) => Execute(provider);
     }
 
     /// <summary>
@@ -30,8 +30,8 @@
     /// </summary>
     public abstract class AbstractCommand<TResult> : ICommand<TResult>
     {
-        protected abstract TResult Execute(ICommandContext context);
+        protected abstract TResult Execute(ICommandProvider provider);
 
-        TResult ICommand<TResult>.Execute(ICommandContext context) => Execute(context);
+        TResult ICommand<TResult>.Execute(ICommandProvider provider) => Execute(provider);
     }
 }

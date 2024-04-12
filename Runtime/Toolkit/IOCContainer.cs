@@ -8,6 +8,11 @@ namespace Framework
     {
         private readonly Dictionary<Type, object> m_instances = new Dictionary<Type, object>();
 
+        public bool Contains<T>()
+        {
+            return m_instances.ContainsKey(typeof(T));
+        }
+
         public void Register<T>(T instance)
         {
             var key = typeof(T);

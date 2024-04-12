@@ -2,6 +2,57 @@
 
 namespace Framework
 {
+    public interface IBelongArchitecture
+    {
+        protected internal IArchitecture GetArchitecture();
+    }
+
+    public interface ISetArchitecture
+    {
+        protected internal void SetArchitecture(IArchitecture architecture);
+    }
+
+    public interface ICanInit
+    {
+        protected internal void Init();
+        protected internal void Destroy();
+    }
+
+    public interface ICanGetUtility : IBelongArchitecture
+    {
+
+    }
+
+    public interface ICanGetModel : IBelongArchitecture
+    {
+
+    }
+
+    public interface ICanGetSystem : IBelongArchitecture
+    {
+
+    }
+
+    public interface ICanSendCommand : IBelongArchitecture
+    {
+
+    }
+
+    public interface ICanSendQuery : IBelongArchitecture
+    {
+
+    }
+
+    public interface ICanRegisterEvent : IBelongArchitecture
+    {
+
+    }
+
+    public interface ICanSendEvent : IBelongArchitecture
+    {
+
+    }
+
     public static class ArchitectureExtensions
     {
         public static TUtility GetUtility<TUtility>(this ICanGetUtility context) where TUtility : class, IUtility

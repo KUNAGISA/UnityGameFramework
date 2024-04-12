@@ -1,30 +1,48 @@
-﻿namespace Framework
+﻿using System;
+
+namespace Framework
 {
     public interface IUnRegister
     {
         void UnRegister();
     }
 
-    public interface IUnRegisterable<T>
+    public interface IDeregister<T>
     {
         void UnRegister(T register);
     }
 
-    public sealed class UnRegisterableUnRegister<T> : IUnRegister where T : class
+    public sealed class CustomUnRegister : IUnRegister
     {
-        private IUnRegisterable<T> m_unregisterable = null;
-        private T m_register = null;
+        private Action m_deregister = null;
 
-        public UnRegisterableUnRegister(IUnRegisterable<T> unregisterable, T register)
+        public CustomUnRegister(Action deregister)
         {
-            m_unregisterable = unregisterable;
+            m_deregister = deregister;
+        }
+
+        public void UnRegister()
+        {
+            m_deregister?.Invoke();
+            m_deregister = null;
+        }
+    }
+
+    public sealed class DeregisterUnRegister<T> : IUnRegister
+    {
+        private IDeregister<T> m_deregister = null;
+        private T m_register = default;
+
+        public DeregisterUnRegister(IDeregister<T> deregister, T register)
+        {
+            m_deregister = deregister;
             m_register = register;
         }
 
         public void UnRegister()
         {
-            m_unregisterable?.UnRegister(m_register);
-            m_unregisterable = null; m_register = null;
+            m_deregister?.UnRegister(m_register);
+            m_deregister = null; m_register = default;
         }
     }
 }
