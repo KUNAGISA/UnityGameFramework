@@ -5,7 +5,7 @@
 - `System`层是模块化的逻辑功能，给多个`Controller`提供共享的逻辑功能，允许访问`System`(但注意不要循环引用)，`Model`，`Utility`，可以执行`Command`和`Query`，可以发送和接收事件。
 - `Model`层是数据模块，给`System`层和`Controller`提供共享的数据功能。允许访问`Utility`，可以发送事件。
 - `Utility`层是工具模块，比如一些持久化数据，配置读取，SDK之类的就可以放到这一层。可以发送事件
-- `Command`跟`System`差不多，但这是一个无状态对象，可以做成`struct`，或者使用`using Shared<T>.Get(out var result)`减少GC压力。如果一个功能涉及到多个模块，不知道放哪里的时候就可以直接做成`Command`。允许访问`System`，`Model`，`Utility`，可以执行`Command`和`Query`，可以发送事件。
+- `Command`跟`System`差不多，但这是一个无状态对象，可以做成`struct`。如果一个功能涉及到多个模块，不知道放哪里的时候就可以直接做成`Command`。允许访问`System`，`Model`，`Utility`，可以执行`Command`和`Query`，可以发送事件。
 - `Query`一般用于多模块的组合数据查询。允许访问`System`，`Model`，`Utility`，可以执行`Query`，可以发送事件。
 
 > 关于`Controller`层
