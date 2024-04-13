@@ -28,7 +28,7 @@ namespace Framework
         /// <summary>
         /// Call a command and return result.
         /// </summary>
-        TResult SendCommand<TCommand, TResult>(TCommand command) where TCommand : struct, ICommand<TResult>;
+        TResult SendCommand<TCommand, TResult>(TCommand command) where TCommand : ICommand<TResult>;
 
         /// <summary>
         /// Call a query and return result.Use <see cref="SendQuery{TResult}(IQuery{TResult})"/> if query is value type, or it will be boxed.
@@ -37,7 +37,7 @@ namespace Framework
         /// <summary>
         /// Call a query and return result.
         /// </summary>
-        TResult SendQuery<TQuery, TResult>(TQuery query) where TQuery : struct, IQuery<TResult>;
+        TResult SendQuery<TQuery, TResult>(TQuery query) where TQuery : IQuery<TResult>;
 
         IUnRegister RegisterEvent<TEvent>(Action<TEvent> onEvent);
         void UnRegisterEvent<TEvent>(Action<TEvent> onEvent);
@@ -223,20 +223,20 @@ namespace Framework
 
         public TResult SendCommand<TResult>(ICommand<TResult> command)
         {
-            return SendCommand<TResult, ICommand<TResult>>(command);
+            return SendCommand<ICommand<TResult>, TResult>(command);
         }
 
-        virtual public TResult SendCommand<TCommand, TResult>(TCommand command) where TCommand : struct, ICommand<TResult>
+        virtual public TResult SendCommand<TCommand, TResult>(TCommand command) where TCommand : ICommand<TResult>
         {
             return command.Execute(this);
         }
 
         public TResult SendQuery<TResult>(IQuery<TResult> query)
         {
-            return SendQuery<TResult, IQuery<TResult>>(query);
+            return SendQuery<IQuery<TResult>, TResult>(query);
         }
 
-        virtual public TResult SendQuery<TQuery, TResult>(TQuery query) where TQuery : struct, IQuery<TResult>
+        virtual public TResult SendQuery<TQuery, TResult>(TQuery query) where TQuery : IQuery<TResult>
         {
             return query.Do(this);
         }
