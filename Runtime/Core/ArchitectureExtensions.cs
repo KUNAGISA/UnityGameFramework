@@ -18,40 +18,19 @@ namespace Framework
         protected internal void Destroy();
     }
 
-    public interface ICanGetUtility : IBelongArchitecture
-    {
+    public interface ICanGetUtility : IBelongArchitecture { }
 
-    }
+    public interface ICanGetModel : IBelongArchitecture { }
 
-    public interface ICanGetModel : IBelongArchitecture
-    {
+    public interface ICanGetSystem : IBelongArchitecture { }
 
-    }
+    public interface ICanSendCommand : IBelongArchitecture { }
 
-    public interface ICanGetSystem : IBelongArchitecture
-    {
+    public interface ICanSendQuery : IBelongArchitecture { }
 
-    }
+    public interface ICanRegisterEvent : IBelongArchitecture { }
 
-    public interface ICanSendCommand : IBelongArchitecture
-    {
-
-    }
-
-    public interface ICanSendQuery : IBelongArchitecture
-    {
-
-    }
-
-    public interface ICanRegisterEvent : IBelongArchitecture
-    {
-
-    }
-
-    public interface ICanSendEvent : IBelongArchitecture
-    {
-
-    }
+    public interface ICanSendEvent : IBelongArchitecture { }
 
     public static class ArchitectureExtensions
     {
@@ -89,9 +68,9 @@ namespace Framework
         /// <summary>
         /// Call a command and return result.
         /// </summary>
-        public static TResult SendCommand<TResult, TCommand>(this ICanSendCommand context, TCommand command) where TCommand : struct, ICommand<TResult>
+        public static TResult SendCommand<TCommand, TResult>(this ICanSendCommand context, TCommand command) where TCommand : struct, ICommand<TResult>
         {
-            return context.GetArchitecture().SendCommand<TResult, TCommand>(command);
+            return context.GetArchitecture().SendCommand<TCommand, TResult>(command);
         }
 
         /// <summary>
@@ -105,9 +84,9 @@ namespace Framework
         /// <summary>
         /// Call a query and return result.
         /// </summary>
-        public static TResult SendQuery<TResult, TQuery>(this ICanSendQuery context, TQuery command) where TQuery : struct, IQuery<TResult>
+        public static TResult SendQuery<TQuery, TResult>(this ICanSendQuery context, TQuery query) where TQuery : struct, IQuery<TResult>
         {
-            return context.GetArchitecture().SendQuery<TResult, TQuery>(command);
+            return context.GetArchitecture().SendQuery<TQuery, TResult>(query);
         }
 
         public static IUnRegister RegisterEvent<TEvent>(this ICanRegisterEvent context, Action<TEvent> onEvent)

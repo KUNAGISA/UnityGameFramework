@@ -1,6 +1,6 @@
 ﻿namespace Framework
 {
-    public interface ISystem : IQueryProvider, ICommandProvider, ISetArchitecture, ICanInit, ICanGetSystem, ICanGetModel, ICanGetUtility, ICanSendCommand, ICanSendQuery, ICanSendEvent, ICanRegisterEvent
+    public interface ISystem : ISetArchitecture, ICanInit, ICanGetSystem, ICanGetModel, ICanGetUtility, ICanSendCommand, ICanSendQuery, ICanSendEvent, ICanRegisterEvent
     {
 
     }

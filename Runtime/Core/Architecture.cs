@@ -28,7 +28,7 @@ namespace Framework
         /// <summary>
         /// Call a command and return result.
         /// </summary>
-        TResult SendCommand<TResult, TCommand>(TCommand command) where TCommand : ICommand<TResult>;
+        TResult SendCommand<TCommand, TResult>(TCommand command) where TCommand : struct, ICommand<TResult>;
 
         /// <summary>
         /// Call a query and return result.Use <see cref="SendQuery{TResult}(IQuery{TResult})"/> if query is value type, or it will be boxed.
@@ -37,7 +37,7 @@ namespace Framework
         /// <summary>
         /// Call a query and return result.
         /// </summary>
-        TResult SendQuery<TResult, TQuery>(TQuery query) where TQuery : IQuery<TResult>;
+        TResult SendQuery<TQuery, TResult>(TQuery query) where TQuery : struct, IQuery<TResult>;
 
         IUnRegister RegisterEvent<TEvent>(Action<TEvent> onEvent);
         void UnRegisterEvent<TEvent>(Action<TEvent> onEvent);
@@ -46,7 +46,7 @@ namespace Framework
         void SendEvent<TEvent>(TEvent @event);
     }
 
-    public abstract class Architecture<T> : IArchitecture, ICommandProvider, IQueryProvider where T : Architecture<T>, new()
+    public abstract class Architecture<T> : IArchitecture, ICommandContext, IQueryContext where T : Architecture<T>, new()
     {
         private static T m_architecture = null;
         public static IArchitecture Instance
@@ -226,7 +226,7 @@ namespace Framework
             return SendCommand<TResult, ICommand<TResult>>(command);
         }
 
-        virtual public TResult SendCommand<TResult, TCommand>(TCommand command) where TCommand : ICommand<TResult>
+        virtual public TResult SendCommand<TCommand, TResult>(TCommand command) where TCommand : struct, ICommand<TResult>
         {
             return command.Execute(this);
         }
@@ -236,7 +236,7 @@ namespace Framework
             return SendQuery<TResult, IQuery<TResult>>(query);
         }
 
-        virtual public TResult SendQuery<TResult, TQuery>(TQuery query) where TQuery : IQuery<TResult>
+        virtual public TResult SendQuery<TQuery, TResult>(TQuery query) where TQuery : struct, IQuery<TResult>
         {
             return query.Do(this);
         }

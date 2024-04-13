@@ -64,6 +64,15 @@ namespace Framework
             }
             trigger.Add(self);
         }
+
+        public static void TriggerGameOjbectAllUnRegister(this UnityEngine.GameObject self)
+        {
+            var triggers = self.GetComponents<UnRegisterTrigger>();
+            for(var index = 0; index < triggers.Length; index++) 
+            {
+                triggers[index].UnRegisterAll();
+            }
+        }
 #endif
     }
 }

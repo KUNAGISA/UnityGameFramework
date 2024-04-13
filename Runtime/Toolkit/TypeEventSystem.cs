@@ -18,8 +18,7 @@ namespace Framework
 
         public IUnRegister Register<T>(Action<T> onEvent)
         {
-            var @event = m_events.GetOrAddEvent<EasyEvent<T>>();
-            return @event.Register(onEvent);
+            return m_events.GetOrAddEvent<EasyEvent<T>>().Register(onEvent);
         }
 
         public void UnRegister<T>(Action<T> onEvent)
