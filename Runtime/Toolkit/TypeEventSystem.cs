@@ -6,11 +6,6 @@ namespace Framework
     {
         private readonly EasyEvents m_events = new EasyEvents();
 
-        public void Send<T>() where T : new()
-        {
-            m_events.GetEvent<EasyEvent<T>>()?.Trigger(new T());
-        }
-
         public void Send<T>(T @event)
         {
             m_events.GetEvent<EasyEvent<T>>()?.Trigger(@event);

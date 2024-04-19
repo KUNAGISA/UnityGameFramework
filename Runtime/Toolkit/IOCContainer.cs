@@ -42,19 +42,14 @@ namespace Framework
             return m_instances.TryGetValue(typeof(T), out var instance) ? (T)instance : null;
         }
 
-        public bool TryGet<T>(out T @object) where T : class
-        {
-            @object = null;
-            if (m_instances.TryGetValue(typeof(T), out var instance))
-            {
-                @object = (T)instance;
-            }
-            return @object != null;
-        }
-
         public IEnumerable<T> Select<T>() where T : class
         {
             return m_instances.Values.OfType<T>();
+        }
+
+        public void Clear()
+        {
+            m_instances.Clear();
         }
     }
 }

@@ -101,7 +101,7 @@ namespace Framework
 
         public static void SendEvent<TEvent>(this ICanSendEvent context) where TEvent : new()
         {
-            context.GetArchitecture().SendEvent<TEvent>();
+            context.GetArchitecture().SendEvent(new TEvent());
         }
 
         public static void SendEvent<TEvent>(this ICanSendEvent context, TEvent @event)

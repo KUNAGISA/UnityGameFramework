@@ -25,13 +25,12 @@ namespace Framework
         IUnRegister RegisterEvent<TEvent>(Action<TEvent> onEvent);
         void UnRegisterEvent<TEvent>(Action<TEvent> onEvent);
 
-        void SendEvent<TEvent>() where TEvent : new();
         void SendEvent<TEvent>(TEvent @event);
     }
 
-    public abstract class Architecture<T> : IArchitecture, ICommandContext, IQueryContext where T : Architecture<T>, new()
+    public abstract class Architecture<TArchitecture> : IArchitecture, ICommandContext, IQueryContext where TArchitecture : Architecture<TArchitecture>, new()
     {
-        private static T m_architecture = null;
+        private static TArchitecture m_architecture = null;
         public static IArchitecture Instance
         {
             get
@@ -51,7 +50,7 @@ namespace Framework
                 return;
             }
 
-            m_architecture = new T();
+            m_architecture = new TArchitecture();
             m_architecture.OnInit();
 
             OnRegisterPatch?.Invoke(m_architecture);
@@ -79,8 +78,6 @@ namespace Framework
                 return;
             }
 
-            m_architecture.OnDestroy();
-
             foreach (var system in m_architecture.m_iocContainer.Select<ISystem>())
             {
                 system.Destroy();
@@ -97,10 +94,14 @@ namespace Framework
                 utility.SetArchitecture(null);
             }
 
+            m_architecture.m_iocContainer.Clear();
+            m_architecture.m_eventSystem.Clear();
+
+            m_architecture.OnDestroy();
             m_architecture = null;
         }
 
-        public static event Action<T> OnRegisterPatch;
+        public static event Action<TArchitecture> OnRegisterPatch;
 
         private bool m_initialize = false;
         private readonly TypeEventSystem m_eventSystem = new TypeEventSystem();
@@ -109,13 +110,11 @@ namespace Framework
         protected abstract void OnInit();
         protected abstract void OnDestroy();
 
-        protected IOCContainer IOCContainer => m_iocContainer;
-
         IArchitecture IBelongArchitecture.GetArchitecture() => this;
 
-        protected bool HasInstance<TInstance>() where TInstance : class
+        protected bool Contains<T>() where T : class
         {
-            return m_iocContainer.Contains<TInstance>();
+            return m_iocContainer.Contains<T>();
         }
 
         public void RegisterUtility<TUtility>(TUtility utility) where TUtility : class, IUtility
@@ -140,7 +139,7 @@ namespace Framework
             }
         }
 
-        virtual public TUtility GetUtility<TUtility>() where TUtility : class, IUtility
+        public virtual TUtility GetUtility<TUtility>() where TUtility : class, IUtility
         {
             return m_iocContainer.Get<TUtility>();
         }
@@ -167,7 +166,7 @@ namespace Framework
             }
         }
 
-        virtual public TModel GetModel<TModel>() where TModel : class, IModel
+        public virtual TModel GetModel<TModel>() where TModel : class, IModel
         {
             return m_iocContainer.Get<TModel>();
         }
@@ -194,42 +193,37 @@ namespace Framework
             }
         }
 
-        virtual public TSystem GetSystem<TSystem>() where TSystem : class, ISystem
+        public virtual TSystem GetSystem<TSystem>() where TSystem : class, ISystem
         {
             return m_iocContainer.Get<TSystem>();
         }
 
-        virtual public void SendCommand<TCommand>(TCommand command) where TCommand : ICommand
+        public virtual void SendCommand<TCommand>(TCommand command) where TCommand : ICommand
         {
             command.Execute(this);
         }
 
-        virtual public TResult SendCommand<TCommand, TResult>(TCommand command) where TCommand : ICommand<TResult>
+        public virtual TResult SendCommand<TCommand, TResult>(TCommand command) where TCommand : ICommand<TResult>
         {
             return command.Execute(this);
         }
 
-        virtual public TResult SendQuery<TQuery, TResult>(TQuery query) where TQuery : IQuery<TResult>
+        public virtual TResult SendQuery<TQuery, TResult>(TQuery query) where TQuery : IQuery<TResult>
         {
             return query.Do(this);
         }
 
-        public IUnRegister RegisterEvent<TEvent>(Action<TEvent> onEvent)
+        public virtual IUnRegister RegisterEvent<TEvent>(Action<TEvent> onEvent)
         {
             return m_eventSystem.Register(onEvent);
         }
 
-        public void UnRegisterEvent<TEvent>(Action<TEvent> onEvent)
+        public virtual void UnRegisterEvent<TEvent>(Action<TEvent> onEvent)
         {
             m_eventSystem.UnRegister(onEvent);
         }
 
-        public void SendEvent<TEvent>() where TEvent : new()
-        {
-            m_eventSystem.Send<TEvent>();
-        }
-
-        public void SendEvent<TEvent>(TEvent @event)
+        public virtual void SendEvent<TEvent>(TEvent @event)
         {
             m_eventSystem.Send(@event);
         }
