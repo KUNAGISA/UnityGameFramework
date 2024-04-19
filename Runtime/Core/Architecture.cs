@@ -16,27 +16,10 @@ namespace Framework
         void UnRegisterSystem<TSystem>() where TSystem : class, ISystem;
         TSystem GetSystem<TSystem>() where TSystem : class, ISystem;
 
-        /// <summary>
-        /// Call a command.
-        /// </summary>
         void SendCommand<TCommand>(TCommand command) where TCommand : ICommand;
 
-        /// <summary>
-        /// Call a command and return result.Use <see cref="SendCommand{TResult, TCommand}(TCommand)"/> if command is value type, or it will be boxed.
-        /// </summary>
-        TResult SendCommand<TResult>(ICommand<TResult> command);
-        /// <summary>
-        /// Call a command and return result.
-        /// </summary>
         TResult SendCommand<TCommand, TResult>(TCommand command) where TCommand : ICommand<TResult>;
 
-        /// <summary>
-        /// Call a query and return result.Use <see cref="SendQuery{TResult}(IQuery{TResult})"/> if query is value type, or it will be boxed.
-        /// </summary>
-        TResult SendQuery<TResult>(IQuery<TResult> query);
-        /// <summary>
-        /// Call a query and return result.
-        /// </summary>
         TResult SendQuery<TQuery, TResult>(TQuery query) where TQuery : IQuery<TResult>;
 
         IUnRegister RegisterEvent<TEvent>(Action<TEvent> onEvent);
@@ -221,19 +204,9 @@ namespace Framework
             command.Execute(this);
         }
 
-        public TResult SendCommand<TResult>(ICommand<TResult> command)
-        {
-            return SendCommand<ICommand<TResult>, TResult>(command);
-        }
-
         virtual public TResult SendCommand<TCommand, TResult>(TCommand command) where TCommand : ICommand<TResult>
         {
             return command.Execute(this);
-        }
-
-        public TResult SendQuery<TResult>(IQuery<TResult> query)
-        {
-            return SendQuery<IQuery<TResult>, TResult>(query);
         }
 
         virtual public TResult SendQuery<TQuery, TResult>(TQuery query) where TQuery : IQuery<TResult>

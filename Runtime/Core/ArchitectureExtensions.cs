@@ -62,7 +62,7 @@ namespace Framework
         /// </summary>
         public static TResult SendCommand<TResult>(this ICanSendCommand context, ICommand<TResult> command)
         {
-            return context.GetArchitecture().SendCommand(command);
+            return context.GetArchitecture().SendCommand<ICommand<TResult>, TResult>(command);
         }
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace Framework
         /// </summary>
         public static TResult SendQuery<TResult>(this ICanSendQuery context, IQuery<TResult> command)
         {
-            return context.GetArchitecture().SendQuery(command);
+            return context.GetArchitecture().SendQuery<IQuery<TResult>, TResult>(command);
         }
 
         /// <summary>
