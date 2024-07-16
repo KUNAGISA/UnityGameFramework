@@ -27,12 +27,12 @@ namespace Framework
         void SetValueSilently(T value);
     }
 
-    public sealed class BindableProperty<T> : IBindableProperty<T>, IReadonlyBindableProperty<T>, IDeregister<Action<T>>
+    public sealed class BindableProperty<T> : IBindableProperty<T>, IReadonlyBindableProperty<T>, IUnRegisterable<Action<T>>
     {
         /// <summary>
         /// 默认使用<see cref="EqualityComparer{T}.Default"/>，可自定义比较
         /// </summary>
-        public static IEqualityComparer<T> Comparer { get; set; } = null;
+        public static IEqualityComparer<T> Comparer { get; set; } = EqualityComparer<T>.Default;
 
         private T m_value = default;
         public T Value
@@ -40,8 +40,7 @@ namespace Framework
             get => m_value;
             set
             {
-                var comparer = Comparer ?? EqualityComparer<T>.Default;
-                if (!comparer.Equals(value, m_value))
+                if (!Comparer.Equals(value, m_value))
                 {
                     m_value = value;
                     OnValueChanged?.Invoke(m_value);
@@ -69,7 +68,7 @@ namespace Framework
         public IUnRegister Register(Action<T> onValueChanged)
         {
             OnValueChanged += onValueChanged;
-            return new DeregisterUnRegister<Action<T>>(this, onValueChanged);
+            return new UnRegister<Action<T>>(this, onValueChanged);
         }
 
         public IUnRegister RegisterWithInitValue(Action<T> onValueChanged)

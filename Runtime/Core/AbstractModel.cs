@@ -1,11 +1,11 @@
 ﻿namespace Framework
 {
-    public interface IModel : ISetArchitecture, ICanInit, ICanGetUtility, ICanSendEvent
+    public interface IModel : ISetArchitecture, ICanInit
     {
 
     }
 
-    public abstract class AbstractModel : IModel
+    public abstract class AbstractModel : IModel, ICanGetUtility, ICanSendEvent
     {
         private IArchitecture m_architecutre = null;
 

@@ -1,48 +1,91 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Framework
 {
-    public interface IUnRegister
+    public interface IUnRegister : IDisposable
     {
-        void UnRegister();
+
     }
 
-    public interface IDeregister<T>
+    public interface IUnRegisterable<T>
     {
-        void UnRegister(T register);
+        void UnRegister(T target);
     }
 
-    public sealed class CustomUnRegister : IUnRegister
+    public sealed class UnRegister<T> : IUnRegister
     {
-        private Action m_deregister = null;
+        private IUnRegisterable<T> m_unregister = null;
+        private T m_target = default;
 
-        public CustomUnRegister(Action deregister)
+        public UnRegister(IUnRegisterable<T> unRegister, T target)
         {
-            m_deregister = deregister;
+            m_unregister = unRegister;
+            m_target = target;
         }
 
-        public void UnRegister()
+        public void Dispose()
         {
-            m_deregister?.Invoke();
-            m_deregister = null;
+            m_unregister?.UnRegister(m_target);
+            m_unregister = null; m_target = default;
         }
     }
 
-    public sealed class DeregisterUnRegister<T> : IUnRegister
+    public static class UnityUnRegisterExtensions
     {
-        private IDeregister<T> m_deregister = null;
-        private T m_register = default;
-
-        public DeregisterUnRegister(IDeregister<T> deregister, T register)
+        internal class UnRegisterTrigger : UnityEngine.MonoBehaviour
         {
-            m_deregister = deregister;
-            m_register = register;
+            public readonly HashSet<IUnRegister> m_unRegisters = new HashSet<IUnRegister>();
+
+            private void Awake() => hideFlags = UnityEngine.HideFlags.HideAndDontSave;
+
+            public void Add(IUnRegister register) => m_unRegisters.Add(register);
+
+            public void UnRegisterAll()
+            {
+                foreach (var unregister in m_unRegisters)
+                {
+                    unregister.Dispose();
+                }
+                m_unRegisters.Clear();
+            }
         }
 
-        public void UnRegister()
+        internal class UnRegisterOnDestroyTrigger : UnRegisterTrigger
         {
-            m_deregister?.UnRegister(m_register);
-            m_deregister = null; m_register = default;
+            private void OnDestroy() => UnRegisterAll();
+        }
+
+        internal class UnRegisterOnDisableTrigger : UnRegisterTrigger
+        {
+            private void OnDisable() => UnRegisterAll();
+        }
+
+        public static void UnRegisterWhenGameObjectDestroyed(this IUnRegister self, UnityEngine.GameObject gameObject)
+        {
+            if (!gameObject.TryGetComponent<UnRegisterOnDestroyTrigger>(out var trigger))
+            {
+                trigger = gameObject.AddComponent<UnRegisterOnDestroyTrigger>();
+            }
+            trigger.Add(self);
+        }
+
+        public static void UnRegisterWhenGameObjectDisabled(this IUnRegister self, UnityEngine.GameObject gameObject)
+        {
+            if (!gameObject.TryGetComponent<UnRegisterOnDisableTrigger>(out var trigger))
+            {
+                trigger = gameObject.AddComponent<UnRegisterOnDisableTrigger>();
+            }
+            trigger.Add(self);
+        }
+
+        public static void TriggerAllUnRegister(this UnityEngine.GameObject self)
+        {
+            var triggers = self.GetComponents<UnRegisterTrigger>();
+            for (var index = 0; index < triggers.Length; index++)
+            {
+                triggers[index].UnRegisterAll();
+            }
         }
     }
 }

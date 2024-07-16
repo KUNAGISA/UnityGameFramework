@@ -1,10 +1,10 @@
 {
-  "name": "com.kunagisa.framework",
+  "name": "com.kunagisatomo.unitygameframework",
   "displayName": "Game Framework",
-  "description": "\u7b80\u5355\u7684\u5206\u5c42\u6846\u67b6\uff0cSystem\u548cCommand\u8d1f\u8d23\u529f\u80fd\u6a21\u5757\uff0cQuery\u8d1f\u8d23\u67e5\u8be2\u529f\u80fd\uff0cModel\u8d1f\u8d23\u6570\u636e\u6a21\u5757\uff0cUtility\u8d1f\u8d23\u4e00\u4e9b\u5de5\u5177",
-  "version": "3.0.1",
+  "description": "Simple Game Framework",
+  "version": "3.0.2",
   "author": {
-    "name": "\u96f6",
+    "name": "零",
     "email": "kunagisatomo@live.com"
   }
 }
