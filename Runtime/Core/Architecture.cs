@@ -4,17 +4,10 @@ namespace Framework
 {
     public interface IArchitecture
     {
-        void RegisterUtility<TUtility>(TUtility utility) where TUtility : class, IUtility;
-        void UnRegisterUtility<TUtility>() where TUtility : class, IUtility;
-        TUtility GetUtility<TUtility>() where TUtility : class, IUtility;
-
-        void RegisterModel<TModel>(TModel model) where TModel : class, IModel;
-        void UnRegisterModel<TModel>() where TModel : class, IModel;
-        TModel GetModel<TModel>()where TModel : class, IModel;
-
-        void RegisterSystem<TSystem>(TSystem system) where TSystem : class, ISystem;
-        void UnRegisterSystem<TSystem>() where TSystem : class, ISystem;
-        TSystem GetSystem<TSystem>() where TSystem : class, ISystem;
+        bool Contains<T>() where T : class;
+        void Register<T>(T instance) where T : class, ISetArchitecture, IInitializable;
+        void UnRegister<T>() where T : class, ISetArchitecture, IInitializable;
+        T Get<T>() where T : class;
 
         void SendCommand<TCommand>(TCommand command) where TCommand : ICommand;
 
@@ -30,8 +23,10 @@ namespace Framework
 
     public abstract class Architecture<TArchitecture> : IArchitecture, ICommandContext, IQueryContext where TArchitecture : Architecture<TArchitecture>, new()
     {
+        public static event Action<TArchitecture> OnRegisterPatch;
+
         private static TArchitecture m_architecture = null;
-        public static IArchitecture Instance
+        public static TArchitecture Instance
         {
             get
             {
@@ -101,8 +96,6 @@ namespace Framework
             m_architecture = null;
         }
 
-        public static event Action<TArchitecture> OnRegisterPatch;
-
         private bool m_initialize = false;
         private readonly TypeEventSystem m_eventSystem = new TypeEventSystem();
         private readonly IOCContainer m_iocContainer = new IOCContainer();
@@ -112,90 +105,36 @@ namespace Framework
 
         IArchitecture IBelongArchitecture.GetArchitecture() => this;
 
-        protected bool Contains<T>() where T : class
+        public bool Contains<T>() where T : class
         {
             return m_iocContainer.Contains<T>();
         }
 
-        public void RegisterUtility<TUtility>(TUtility utility) where TUtility : class, IUtility
+        public void Register<T>(T instance) where T : class, ISetArchitecture, IInitializable
         {
-            UnRegisterUtility<TUtility>();
+            UnRegister<T>();
 
-            utility.SetArchitecture(this);
-            m_iocContainer.Register(utility);
+            instance.SetArchitecture(this);
+            m_iocContainer.Register(instance);
 
             if (m_initialize)
             {
-                utility.Init();
+                instance.Init();
             }
         }
 
-        public void UnRegisterUtility<TUtility>() where TUtility : class, IUtility
+        public void UnRegister<T>() where T : class, ISetArchitecture, IInitializable
         {
-            if (m_iocContainer.UnRegister<TUtility>(out var utility))
+            if (m_iocContainer.UnRegister<T>(out var instance))
             {
-                utility.Destroy();
-                utility.SetArchitecture(null);
+                instance.Destroy();
+                instance.SetArchitecture(null);
             }
         }
 
-        public virtual TUtility GetUtility<TUtility>() where TUtility : class, IUtility
+        public virtual T Get<T>() where T : class
         {
-            return m_iocContainer.Get<TUtility>();
-        }
-
-        public void RegisterModel<TModel>(TModel model) where TModel : class, IModel
-        {
-            UnRegisterModel<TModel>();
-
-            model.SetArchitecture(this);
-            m_iocContainer.Register(model);
-
-            if (m_initialize)
-            {
-                model.Init();
-            }
-        }
-
-        public void UnRegisterModel<TModel>() where TModel : class, IModel
-        {
-            if (m_iocContainer.UnRegister<TModel>(out var model))
-            {
-                model.Destroy();
-                model.SetArchitecture(null);
-            }
-        }
-
-        public virtual TModel GetModel<TModel>() where TModel : class, IModel
-        {
-            return m_iocContainer.Get<TModel>();
-        }
-
-        public void RegisterSystem<TSystem>(TSystem system) where TSystem : class, ISystem
-        {
-            UnRegisterSystem<TSystem>();
-
-            system.SetArchitecture(this);
-            m_iocContainer.Register(system);
-
-            if (m_initialize)
-            {
-                system.Init();
-            }
-        }
-
-        public void UnRegisterSystem<TSystem>() where TSystem : class, ISystem
-        {
-            if (m_iocContainer.UnRegister<TSystem>(out var system))
-            {
-                system.Destroy();
-                system.SetArchitecture(null);
-            }
-        }
-
-        public virtual TSystem GetSystem<TSystem>() where TSystem : class, ISystem
-        {
-            return m_iocContainer.Get<TSystem>();
+            return m_iocContainer.Get<T>();
         }
 
         public virtual void SendCommand<TCommand>(TCommand command) where TCommand : ICommand

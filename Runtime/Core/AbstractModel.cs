@@ -1,6 +1,6 @@
 ﻿namespace Framework
 {
-    public interface IModel : ISetArchitecture, ICanInit
+    public interface IModel : ISetArchitecture, IInitializable
     {
 
     }
@@ -12,8 +12,8 @@
         protected virtual void OnInit() { }
         protected virtual void OnDestroy() { }
 
-        void ICanInit.Init() => OnInit();
-        void ICanInit.Destroy() => OnDestroy();
+        void IInitializable.Init() => OnInit();
+        void IInitializable.Destroy() => OnDestroy();
         void ISetArchitecture.SetArchitecture(IArchitecture architecutre) => m_architecutre = architecutre;
         IArchitecture IBelongArchitecture.GetArchitecture() => m_architecutre;
     }

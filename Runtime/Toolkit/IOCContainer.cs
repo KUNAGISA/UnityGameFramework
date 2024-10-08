@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Framework
 {
-    public class IOCContainer
+    public sealed class IOCContainer
     {
         private readonly Dictionary<Type, object> m_instances = new Dictionary<Type, object>();
 
