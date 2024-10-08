@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Framework
 {
@@ -8,6 +9,7 @@ namespace Framework
         void Register<T>(T instance) where T : class, ISetArchitecture, IInitializable;
         void UnRegister<T>() where T : class, ISetArchitecture, IInitializable;
         T Get<T>() where T : class;
+        IEnumerable<T> Select<T>() where T : class;
 
         void SendCommand<TCommand>(TCommand command) where TCommand : ICommand;
 
@@ -26,7 +28,7 @@ namespace Framework
         public static event Action<TArchitecture> OnRegisterPatch;
 
         private static TArchitecture m_architecture = null;
-        public static TArchitecture Instance
+        public static IArchitecture Instance
         {
             get
             {
@@ -37,6 +39,8 @@ namespace Framework
                 return m_architecture;
             }
         }
+
+        public static bool Vaild => m_architecture != null;
 
         public static void MakeSureArchitecture()
         {
@@ -135,6 +139,11 @@ namespace Framework
         public virtual T Get<T>() where T : class
         {
             return m_iocContainer.Get<T>();
+        }
+
+        public IEnumerable<T> Select<T>() where T : class
+        {
+            return m_iocContainer.Select<T>();
         }
 
         public virtual void SendCommand<TCommand>(TCommand command) where TCommand : ICommand
