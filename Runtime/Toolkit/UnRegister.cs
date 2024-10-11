@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 namespace Framework
 {
@@ -31,7 +32,7 @@ namespace Framework
         }
     }
 
-    public static class UnityUnRegisterExtensions
+    public static class UnRegisterExtensions
     {
         internal class UnRegisterTrigger : UnityEngine.MonoBehaviour
         {
@@ -61,6 +62,34 @@ namespace Framework
             private void OnDisable() => UnRegisterAll();
         }
 
+        internal class UnRegisterCurrentSceneUnloadedTrigger : UnRegisterTrigger
+        {
+            private static UnRegisterCurrentSceneUnloadedTrigger s_default = null;
+            public static UnRegisterCurrentSceneUnloadedTrigger Default
+            {
+                get
+                {
+                    if (!s_default)
+                    {
+                        s_default = new UnityEngine.GameObject("[UnRegisterCurrentSceneUnloadedTrigger]")
+                            .AddComponent<UnRegisterCurrentSceneUnloadedTrigger>();
+                    }
+                    return s_default;
+                }
+            }
+
+            private void Awake()
+            {
+                DontDestroyOnLoad(this);
+                gameObject.hideFlags = UnityEngine.HideFlags.HideAndDontSave;
+                SceneManager.sceneUnloaded += OnSceneUnloaded;
+            }
+
+            private void OnDestroy() => SceneManager.sceneUnloaded -= OnSceneUnloaded;
+
+            private void OnSceneUnloaded(Scene scene) => UnRegisterAll();
+        }
+
         private static readonly List<UnRegisterTrigger> s_caches = new List<UnRegisterTrigger>(2);
 
         public static void UnRegisterWhenGameObjectDestroyed(this IUnRegister self, UnityEngine.GameObject gameObject)
@@ -79,6 +108,11 @@ namespace Framework
                 trigger = gameObject.AddComponent<UnRegisterOnDisableTrigger>();
             }
             trigger.Add(self);
+        }
+
+        public static void UnRegisterWhenCurrentSceneUnloaded(this IUnRegister self)
+        {
+            UnRegisterCurrentSceneUnloadedTrigger.Default.Add(self);
         }
 
         public static void TriggerAllUnRegister(this UnityEngine.GameObject self)

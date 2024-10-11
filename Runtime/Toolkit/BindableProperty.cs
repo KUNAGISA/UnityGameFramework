@@ -50,12 +50,7 @@ namespace Framework
 
         event Action<T> OnValueChanged;
 
-        public BindableProperty()
-        {
-
-        }
-
-        public BindableProperty(T value)
+        public BindableProperty(T value = default)
         {
             m_value = value;
         }
