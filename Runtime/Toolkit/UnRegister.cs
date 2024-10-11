@@ -61,6 +61,8 @@ namespace Framework
             private void OnDisable() => UnRegisterAll();
         }
 
+        private static readonly List<UnRegisterTrigger> s_caches = new List<UnRegisterTrigger>(2);
+
         public static void UnRegisterWhenGameObjectDestroyed(this IUnRegister self, UnityEngine.GameObject gameObject)
         {
             if (!gameObject.TryGetComponent<UnRegisterOnDestroyTrigger>(out var trigger))
@@ -81,10 +83,10 @@ namespace Framework
 
         public static void TriggerAllUnRegister(this UnityEngine.GameObject self)
         {
-            var triggers = self.GetComponents<UnRegisterTrigger>();
-            for (var index = 0; index < triggers.Length; index++)
+            self.GetComponents(s_caches);
+            for (var index = 0; index < s_caches.Count; index++)
             {
-                triggers[index].UnRegisterAll();
+                s_caches[index].UnRegisterAll();
             }
         }
     }

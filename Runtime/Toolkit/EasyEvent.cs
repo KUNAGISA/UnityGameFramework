@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Framework
 {
@@ -35,7 +34,7 @@ namespace Framework
 
         public IUnRegister Register(Action onEvent)
         {
-            return Register(x => onEvent());
+            return Register(_ => onEvent());
         }
 
         public IUnRegister Register(Action<T> onEvent)
@@ -49,9 +48,9 @@ namespace Framework
             OnEvent -= onEvent;
         }
 
-        public void Trigger(T @event)
+        public void Trigger(in T e)
         {
-            OnEvent?.Invoke(@event);
+            OnEvent?.Invoke(e);
         }
     }
 }

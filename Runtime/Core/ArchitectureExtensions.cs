@@ -49,6 +49,11 @@ namespace Framework
             return context.GetArchitecture().Get<TSystem>();
         }
 
+        public static void SendCommand(this ICanSendCommand context, ICommand command)
+        {
+            context.GetArchitecture().SendCommand(command);
+        }
+
         public static void SendCommand<TCommand>(this ICanSendCommand context, TCommand command) where TCommand : ICommand
         {
             context.GetArchitecture().SendCommand(command);
@@ -89,9 +94,9 @@ namespace Framework
             context.GetArchitecture().SendEvent(new TEvent());
         }
 
-        public static void SendEvent<TEvent>(this ICanSendEvent context, TEvent @event)
+        public static void SendEvent<TEvent>(this ICanSendEvent context, in TEvent e)
         {
-            context.GetArchitecture().SendEvent(@event);
+            context.GetArchitecture().SendEvent(e);
         }
     }
 }

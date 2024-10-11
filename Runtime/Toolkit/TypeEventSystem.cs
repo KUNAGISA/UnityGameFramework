@@ -7,11 +7,11 @@ namespace Framework
     {
         private readonly Dictionary<Type, IEasyEvent> m_events = new Dictionary<Type, IEasyEvent>();
 
-        public void Send<T>(T @event)
+        public void Send<T>(in T e)
         {
             if (m_events.TryGetValue(typeof(EasyEvent<T>), out var trigger))
             {
-                ((EasyEvent<T>)trigger).Trigger(@event);
+                ((EasyEvent<T>)trigger).Trigger(e);
             }
         }
 

@@ -20,84 +20,84 @@ namespace Framework
         IUnRegister RegisterEvent<TEvent>(Action<TEvent> onEvent);
         void UnRegisterEvent<TEvent>(Action<TEvent> onEvent);
 
-        void SendEvent<TEvent>(TEvent @event);
+        void SendEvent<TEvent>(in TEvent e);
     }
 
     public abstract class Architecture<TArchitecture> : IArchitecture, ICommandContext, IQueryContext where TArchitecture : Architecture<TArchitecture>, new()
     {
         public static event Action<TArchitecture> OnRegisterPatch;
 
-        private static TArchitecture m_architecture = null;
+        private static TArchitecture s_architecture = null;
         public static IArchitecture Instance
         {
             get
             {
-                if (m_architecture == null)
+                if (s_architecture == null)
                 {
                     MakeSureArchitecture();
                 }
-                return m_architecture;
+                return s_architecture;
             }
         }
 
-        public static bool Vaild => m_architecture != null;
+        public static bool Vaild => s_architecture != null;
 
         public static void MakeSureArchitecture()
         {
-            if (m_architecture != null)
+            if (s_architecture != null)
             {
                 return;
             }
 
-            m_architecture = new TArchitecture();
-            m_architecture.OnInit();
+            s_architecture = new TArchitecture();
+            s_architecture.OnInit();
 
-            OnRegisterPatch?.Invoke(m_architecture);
+            OnRegisterPatch?.Invoke(s_architecture);
 
-            foreach(var utility in m_architecture.m_iocContainer.Select<IUtility>())
+            foreach(var utility in s_architecture.m_iocContainer.Select<IUtility>())
             {
                 utility.Init();
             }
-            foreach (var model in m_architecture.m_iocContainer.Select<IModel>())
+            foreach (var model in s_architecture.m_iocContainer.Select<IModel>())
             {
                 model.Init();
             }
-            foreach (var system in m_architecture.m_iocContainer.Select<ISystem>())
+            foreach (var system in s_architecture.m_iocContainer.Select<ISystem>())
             {
                 system.Init();
             }
 
-            m_architecture.m_initialize = true;
+            s_architecture.m_initialize = true;
         }
 
         public static void DestroyInstance()
         {
-            if (m_architecture == null)
+            if (s_architecture == null)
             {
                 return;
             }
 
-            foreach (var system in m_architecture.m_iocContainer.Select<ISystem>())
+            foreach (var system in s_architecture.m_iocContainer.Select<ISystem>())
             {
                 system.Destroy();
                 system.SetArchitecture(null);
             }
-            foreach (var model in m_architecture.m_iocContainer.Select<IModel>())
+            foreach (var model in s_architecture.m_iocContainer.Select<IModel>())
             {
                 model.Destroy();
                 model.SetArchitecture(null);
             }
-            foreach (var utility in m_architecture.m_iocContainer.Select<IUtility>())
+            foreach (var utility in s_architecture.m_iocContainer.Select<IUtility>())
             {
                 utility.Destroy();
                 utility.SetArchitecture(null);
             }
 
-            m_architecture.m_iocContainer.Clear();
-            m_architecture.m_eventSystem.Clear();
+            s_architecture.m_iocContainer.Clear();
+            s_architecture.m_eventSystem.Clear();
 
-            m_architecture.OnDestroy();
-            m_architecture = null;
+            s_architecture.OnDestroy();
+            s_architecture = null;
         }
 
         private bool m_initialize = false;
@@ -171,9 +171,9 @@ namespace Framework
             m_eventSystem.UnRegister(onEvent);
         }
 
-        public virtual void SendEvent<TEvent>(TEvent @event)
+        public virtual void SendEvent<TEvent>(in TEvent e)
         {
-            m_eventSystem.Send(@event);
+            m_eventSystem.Send(e);
         }
     }
 }
