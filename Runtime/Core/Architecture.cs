@@ -6,9 +6,9 @@ namespace Framework
     public interface IArchitecture
     {
         bool Contains<T>() where T : class;
-        void Register<T>(T instance) where T : class, ISetArchitecture, IInitializable;
-        void UnRegister<T>() where T : class, ISetArchitecture, IInitializable;
-        T Get<T>() where T : class;
+        void Register<T>(T instance) where T : class, IArchitectureModule;
+        void UnRegister<T>() where T : class, IArchitectureModule;
+        T Get<T>() where T : class, IArchitectureModule;
         IEnumerable<T> Select<T>() where T : class;
 
         void SendCommand<TCommand>(TCommand command) where TCommand : ICommand;
@@ -114,7 +114,7 @@ namespace Framework
             return m_iocContainer.Contains<T>();
         }
 
-        public void Register<T>(T instance) where T : class, ISetArchitecture, IInitializable
+        public void Register<T>(T instance) where T : class, IArchitectureModule
         {
             UnRegister<T>();
 
@@ -127,7 +127,7 @@ namespace Framework
             }
         }
 
-        public void UnRegister<T>() where T : class, ISetArchitecture, IInitializable
+        public void UnRegister<T>() where T : class, IArchitectureModule
         {
             if (m_iocContainer.UnRegister<T>(out var instance))
             {
@@ -136,7 +136,7 @@ namespace Framework
             }
         }
 
-        public virtual T Get<T>() where T : class
+        public virtual T Get<T>() where T : class, IArchitectureModule
         {
             return m_iocContainer.Get<T>();
         }

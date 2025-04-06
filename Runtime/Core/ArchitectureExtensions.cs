@@ -7,13 +7,9 @@ namespace Framework
         protected internal IArchitecture GetArchitecture();
     }
 
-    public interface ISetArchitecture
+    public interface IArchitectureModule
     {
         protected internal void SetArchitecture(IArchitecture architecture);
-    }
-
-    public interface IInitializable
-    {
         protected internal void Init();
         protected internal void Destroy();
     }
