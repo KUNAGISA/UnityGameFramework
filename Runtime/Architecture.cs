@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Framework
+namespace GameFramework
 {
-    public interface IArchitecture
+    public partial interface IArchitecture
     {
         bool Contains<T>() where T : class;
         void Register<T>(T instance) where T : class, IArchitectureModule;
@@ -17,13 +17,13 @@ namespace Framework
 
         TResult SendQuery<TQuery, TResult>(TQuery query) where TQuery : IQuery<TResult>;
 
-        IUnRegister RegisterEvent<TEvent>(Action<TEvent> onEvent);
-        void UnRegisterEvent<TEvent>(Action<TEvent> onEvent);
+        ICancelToken RegisterEvent<TEvent>(Action<TEvent> onEvent);
+        void CancelEvent<TEvent>(Action<TEvent> onEvent);
 
         void SendEvent<TEvent>(in TEvent e);
     }
 
-    public abstract class Architecture<TArchitecture> : IArchitecture, ICommandContext, IQueryContext where TArchitecture : Architecture<TArchitecture>, new()
+    public abstract partial class Architecture<TArchitecture> : IArchitecture, ICommandContext, IQueryContext where TArchitecture : Architecture<TArchitecture>, new()
     {
         public static event Action<TArchitecture> OnRegisterPatch;
 
@@ -40,7 +40,7 @@ namespace Framework
             }
         }
 
-        public static bool Vaild => s_architecture != null;
+        public static bool Valid => s_architecture != null;
 
         public static void MakeSureArchitecture()
         {
@@ -54,20 +54,20 @@ namespace Framework
 
             OnRegisterPatch?.Invoke(s_architecture);
 
-            foreach(var utility in s_architecture.m_iocContainer.Select<IUtility>())
+            foreach(var utility in s_architecture._iocContainer.Select<IUtility>())
             {
                 utility.Init();
             }
-            foreach (var model in s_architecture.m_iocContainer.Select<IModel>())
+            foreach (var model in s_architecture._iocContainer.Select<IModel>())
             {
                 model.Init();
             }
-            foreach (var system in s_architecture.m_iocContainer.Select<ISystem>())
+            foreach (var system in s_architecture._iocContainer.Select<ISystem>())
             {
                 system.Init();
             }
 
-            s_architecture.m_initialize = true;
+            s_architecture._initialize = true;
         }
 
         public static void DestroyInstance()
@@ -77,32 +77,32 @@ namespace Framework
                 return;
             }
 
-            foreach (var system in s_architecture.m_iocContainer.Select<ISystem>())
+            foreach (var system in s_architecture._iocContainer.Select<ISystem>())
             {
                 system.Destroy();
                 system.SetArchitecture(null);
             }
-            foreach (var model in s_architecture.m_iocContainer.Select<IModel>())
+            foreach (var model in s_architecture._iocContainer.Select<IModel>())
             {
                 model.Destroy();
                 model.SetArchitecture(null);
             }
-            foreach (var utility in s_architecture.m_iocContainer.Select<IUtility>())
+            foreach (var utility in s_architecture._iocContainer.Select<IUtility>())
             {
                 utility.Destroy();
                 utility.SetArchitecture(null);
             }
 
-            s_architecture.m_iocContainer.Clear();
-            s_architecture.m_eventSystem.Clear();
+            s_architecture._iocContainer.Clear();
+            s_architecture._events.Clear();
 
             s_architecture.OnDestroy();
             s_architecture = null;
         }
 
-        private bool m_initialize = false;
-        private readonly TypeEventSystem m_eventSystem = new TypeEventSystem();
-        private readonly IOCContainer m_iocContainer = new IOCContainer();
+        private bool _initialize = false;
+        private readonly TypedEvent _events = new TypedEvent();
+        private readonly IOCContainer _iocContainer = new IOCContainer();
 
         protected abstract void OnInit();
         protected abstract void OnDestroy();
@@ -111,7 +111,7 @@ namespace Framework
 
         public bool Contains<T>() where T : class
         {
-            return m_iocContainer.Contains<T>();
+            return _iocContainer.Contains<T>();
         }
 
         public void Register<T>(T instance) where T : class, IArchitectureModule
@@ -119,9 +119,9 @@ namespace Framework
             UnRegister<T>();
 
             instance.SetArchitecture(this);
-            m_iocContainer.Register(instance);
+            _iocContainer.Register(instance);
 
-            if (m_initialize)
+            if (_initialize)
             {
                 instance.Init();
             }
@@ -129,7 +129,7 @@ namespace Framework
 
         public void UnRegister<T>() where T : class, IArchitectureModule
         {
-            if (m_iocContainer.UnRegister<T>(out var instance))
+            if (_iocContainer.UnRegister<T>(out var instance))
             {
                 instance.Destroy();
                 instance.SetArchitecture(null);
@@ -138,12 +138,12 @@ namespace Framework
 
         public virtual T Get<T>() where T : class, IArchitectureModule
         {
-            return m_iocContainer.Get<T>();
+            return _iocContainer.Get<T>();
         }
 
         public IEnumerable<T> Select<T>() where T : class
         {
-            return m_iocContainer.Select<T>();
+            return _iocContainer.Select<T>();
         }
 
         public virtual void SendCommand<TCommand>(TCommand command) where TCommand : ICommand
@@ -161,19 +161,19 @@ namespace Framework
             return query.Do(this);
         }
 
-        public virtual IUnRegister RegisterEvent<TEvent>(Action<TEvent> onEvent)
+        public virtual ICancelToken RegisterEvent<TEvent>(Action<TEvent> onEvent)
         {
-            return m_eventSystem.Register(onEvent);
+            return _events.Register(onEvent);
         }
 
-        public virtual void UnRegisterEvent<TEvent>(Action<TEvent> onEvent)
+        public virtual void CancelEvent<TEvent>(Action<TEvent> onEvent)
         {
-            m_eventSystem.UnRegister(onEvent);
+            _events.Cancel(onEvent);
         }
 
         public virtual void SendEvent<TEvent>(in TEvent e)
         {
-            m_eventSystem.Send(e);
+            _events.Send(e);
         }
     }
 }

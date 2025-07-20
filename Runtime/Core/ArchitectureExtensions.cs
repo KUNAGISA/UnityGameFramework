@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Framework
+namespace GameFramework
 {
     public interface IBelongArchitecture
     {
@@ -75,14 +75,14 @@ namespace Framework
             return context.GetArchitecture().SendQuery<TQuery, TResult>(query);
         }
 
-        public static IUnRegister RegisterEvent<TEvent>(this ICanRegisterEvent context, Action<TEvent> onEvent)
+        public static ICancelToken RegisterEvent<TEvent>(this ICanRegisterEvent context, Action<TEvent> onEvent)
         {
             return context.GetArchitecture().RegisterEvent(onEvent);
         }
 
-        public static void UnRegisterEvent<TEvent>(this ICanRegisterEvent context, Action<TEvent> onEvent)
+        public static void CancelEvent<TEvent>(this ICanRegisterEvent context, Action<TEvent> onEvent)
         {
-            context.GetArchitecture().UnRegisterEvent(onEvent);
+            context.GetArchitecture().CancelEvent(onEvent);
         }
 
         public static void SendEvent<TEvent>(this ICanSendEvent context) where TEvent : new()

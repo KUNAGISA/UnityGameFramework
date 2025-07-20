@@ -1,4 +1,4 @@
-﻿namespace Framework
+﻿namespace GameFramework
 {
     public interface IQueryContext : ICanGetUtility, ICanGetModel, ICanGetSystem, ICanSendQuery
     {

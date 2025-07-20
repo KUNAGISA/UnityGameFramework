@@ -1,4 +1,4 @@
-﻿namespace Framework
+﻿namespace GameFramework
 {
     public interface ICommandContext : ICanGetUtility, ICanGetModel, ICanGetSystem, ICanSendCommand, ICanSendQuery, ICanSendEvent
     {
