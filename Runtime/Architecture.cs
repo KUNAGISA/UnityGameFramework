@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using UnityEngine;
 
 namespace GameFramework
 {
@@ -54,18 +56,9 @@ namespace GameFramework
 
             OnRegisterPatch?.Invoke(s_architecture);
 
-            foreach(var utility in s_architecture._iocContainer.Select<IUtility>())
-            {
-                utility.Init();
-            }
-            foreach (var model in s_architecture._iocContainer.Select<IModel>())
-            {
-                model.Init();
-            }
-            foreach (var system in s_architecture._iocContainer.Select<ISystem>())
-            {
-                system.Init();
-            }
+            InitModules<IUtility>(s_architecture._iocContainer);
+            InitModules<IModel>(s_architecture._iocContainer);
+            InitModules<ISystem>(s_architecture._iocContainer);
 
             s_architecture._initialize = true;
         }
@@ -77,29 +70,43 @@ namespace GameFramework
                 return;
             }
 
-            foreach (var system in s_architecture._iocContainer.Select<ISystem>())
-            {
-                system.Destroy();
-                system.SetArchitecture(null);
-            }
-            foreach (var model in s_architecture._iocContainer.Select<IModel>())
-            {
-                model.Destroy();
-                model.SetArchitecture(null);
-            }
-            foreach (var utility in s_architecture._iocContainer.Select<IUtility>())
-            {
-                utility.Destroy();
-                utility.SetArchitecture(null);
-            }
-
+            DestroyModules<ISystem>(s_architecture._iocContainer);
+            DestroyModules<IModel>(s_architecture._iocContainer);
+            DestroyModules<IUtility>(s_architecture._iocContainer);
+            
             s_architecture._iocContainer.Clear();
             s_architecture._events.Clear();
 
             s_architecture.OnDestroy();
             s_architecture = null;
         }
-
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void InitModules<T>(IOCContainer ioc) where T : class, IArchitectureModule
+        {
+            foreach(var module in ioc.Select<T>())
+            {
+                module.Init();
+            }
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void DestroyModules<T>(IOCContainer ioc) where T : class, IArchitectureModule
+        {
+            foreach(var module in ioc.Select<T>())
+            {
+                try
+                {
+                    module.Destroy();
+                }
+                catch (Exception exception)
+                {
+                    Debug.LogException(exception);
+                }
+                module.SetArchitecture(null);
+            }
+        }
+        
         private bool _initialize = false;
         private readonly TypedEvent _events = new TypedEvent();
         private readonly IOCContainer _iocContainer = new IOCContainer();
