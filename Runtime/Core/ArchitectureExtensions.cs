@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace GameFramework
 {
@@ -35,16 +36,31 @@ namespace GameFramework
             return context.GetArchitecture().Get<TUtility>();
         }
 
+        public static IEnumerable<TUtility> SelectUtility<TUtility>(this ICanGetUtility context) where TUtility : class, IUtility
+        {
+            return context.GetArchitecture().Select<TUtility>();
+        }
+        
         public static TModel GetModel<TModel>(this ICanGetModel context) where TModel : class, IModel
         {
             return context.GetArchitecture().Get<TModel>();
         }
 
+        public static IEnumerable<TModel> SelectModel<TModel>(this ICanGetUtility context) where TModel : class, IModel
+        {
+            return context.GetArchitecture().Select<TModel>();
+        }
+        
         public static TSystem GetSystem<TSystem>(this ICanGetSystem context) where TSystem : class, ISystem
         {
             return context.GetArchitecture().Get<TSystem>();
         }
 
+        public static IEnumerable<TSystem> SelectSystem<TSystem>(this ICanGetUtility context) where TSystem : class, ISystem
+        {
+            return context.GetArchitecture().Select<TSystem>();
+        }
+        
         public static void SendCommand(this ICanSendCommand context, ICommand command)
         {
             context.GetArchitecture().SendCommand(command);

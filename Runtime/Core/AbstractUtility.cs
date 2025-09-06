@@ -5,7 +5,7 @@
 
     }
 
-    public abstract class AbstractUtility : IUtility, ICanSendEvent
+    public abstract partial class AbstractUtility : IUtility, ICanSendEvent
     {
         private IArchitecture _architecture = null;
 

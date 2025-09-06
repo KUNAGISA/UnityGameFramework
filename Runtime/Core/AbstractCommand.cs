@@ -18,7 +18,7 @@
     /// <summary>
     /// 无状态处理对象，如果比较频繁，建议使用结构体或者缓存
     /// </summary>
-    public abstract class AbstractCommand : ICommand
+    public abstract partial class AbstractCommand : ICommand
     {
         protected abstract void Execute(ICommandContext context);
 
@@ -28,7 +28,7 @@
     /// <summary>
     /// 无状态处理对象，如果比较频繁，建议使用结构体或者缓存
     /// </summary>
-    public abstract class AbstractCommand<TResult> : ICommand<TResult>
+    public abstract partial class AbstractCommand<TResult> : ICommand<TResult>
     {
         protected abstract TResult Execute(ICommandContext context);
 

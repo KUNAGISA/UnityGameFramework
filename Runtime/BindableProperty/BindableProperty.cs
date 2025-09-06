@@ -3,30 +3,6 @@ using System.Collections.Generic;
 
 namespace GameFramework
 {
-    public interface IReadonlyBindableProperty<T>
-    {
-        T Value { get; }
-
-        ICancelToken Register(Action<T> onValueChanged);
-
-        ICancelToken RegisterWithInitValue(Action<T> onValueChanged);
-
-        void Cancel(Action<T> onValueChanged);
-    }
-
-    public interface IBindableProperty<T>
-    {
-        T Value { get; set; }
-
-        ICancelToken Register(Action<T> onValueChanged);
-
-        ICancelToken RegisterWithInitValue(Action<T> onValueChanged);
-
-        void Cancel(Action<T> onValueChanged);
-
-        void SetValueSilently(T value);
-    }
-
     public sealed class BindableProperty<T> : IBindableProperty<T>, IReadonlyBindableProperty<T>, ICanceller<Action<T>>
     {
         /// <summary>
@@ -63,7 +39,7 @@ namespace GameFramework
         public ICancelToken Register(Action<T> onValueChanged)
         {
             OnValueChanged += onValueChanged;
-            return new CancelToken<Action<T>>(this, onValueChanged);
+            return CancelToken.Get(this, onValueChanged);
         }
 
         public ICancelToken RegisterWithInitValue(Action<T> onValueChanged)

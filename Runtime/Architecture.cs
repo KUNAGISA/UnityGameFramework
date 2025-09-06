@@ -29,56 +29,56 @@ namespace GameFramework
     {
         public static event Action<TArchitecture> OnRegisterPatch;
 
-        private static TArchitecture s_architecture = null;
+        private static TArchitecture _architecture = null;
         public static IArchitecture Instance
         {
             get
             {
-                if (s_architecture == null)
+                if (_architecture == null)
                 {
                     MakeSureArchitecture();
                 }
-                return s_architecture;
+                return _architecture;
             }
         }
 
-        public static bool Valid => s_architecture != null;
+        public static bool Valid => _architecture != null;
 
         public static void MakeSureArchitecture()
         {
-            if (s_architecture != null)
+            if (_architecture != null)
             {
                 return;
             }
 
-            s_architecture = new TArchitecture();
-            s_architecture.OnInit();
+            _architecture = new TArchitecture();
+            _architecture.OnInit();
 
-            OnRegisterPatch?.Invoke(s_architecture);
+            OnRegisterPatch?.Invoke(_architecture);
 
-            InitModules<IUtility>(s_architecture._iocContainer);
-            InitModules<IModel>(s_architecture._iocContainer);
-            InitModules<ISystem>(s_architecture._iocContainer);
+            InitModules<IUtility>(_architecture._iocContainer);
+            InitModules<IModel>(_architecture._iocContainer);
+            InitModules<ISystem>(_architecture._iocContainer);
 
-            s_architecture._initialize = true;
+            _architecture._initialize = true;
         }
 
         public static void DestroyInstance()
         {
-            if (s_architecture == null)
+            if (_architecture == null)
             {
                 return;
             }
 
-            DestroyModules<ISystem>(s_architecture._iocContainer);
-            DestroyModules<IModel>(s_architecture._iocContainer);
-            DestroyModules<IUtility>(s_architecture._iocContainer);
+            DestroyModules<ISystem>(_architecture._iocContainer);
+            DestroyModules<IModel>(_architecture._iocContainer);
+            DestroyModules<IUtility>(_architecture._iocContainer);
             
-            s_architecture._iocContainer.Clear();
-            s_architecture._events.Clear();
+            _architecture._iocContainer.Clear();
+            _architecture._events.Clear();
 
-            s_architecture.OnDestroy();
-            s_architecture = null;
+            _architecture.OnDestroy();
+            _architecture = null;
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -108,7 +108,7 @@ namespace GameFramework
         }
         
         private bool _initialize = false;
-        private readonly TypedEvent _events = new TypedEvent();
+        private readonly TypedEventCenter _events = new TypedEventCenter();
         private readonly IOCContainer _iocContainer = new IOCContainer();
 
         protected abstract void OnInit();
