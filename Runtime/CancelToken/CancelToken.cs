@@ -1,32 +1,31 @@
-﻿namespace GameFramework
+﻿using System.Threading;
+
+namespace GameFramework
 {
     public static class CancelToken
     {
-        private static ICancelTokenProvider _provider = new DefaultCancelTokenProvider();
-        public static ICancelTokenProvider Provider
+        private static ICancelTokenFactory _factory = new DefaultCancelTokenFactory();
+        public static ICancelTokenFactory Factory
         {
-            set => _provider = value ?? new DefaultCancelTokenProvider();
+            set => _factory = value ?? new DefaultCancelTokenFactory();
         }
 
         public static CancelToken<T> Get<T>(ICanceller<T> canceller, T target)
         {
-            var token = _provider.Create<T>();
-            token.IsRecyclable = true;
+            var token = _factory.Create<T>();
             token.Reset(canceller, target);
             return token;
         }
 
-        public static void Recycle<T>(CancelToken<T> token)
+        public static void Release<T>(CancelToken<T> token)
         {
             token.Reset(null, default);
-            _provider.Recycle(token);
+            _factory.Recycle(token);
         }
     }
     
     public sealed class CancelToken<T> : ICancelToken
     {
-        public bool IsRecyclable { get; set; } = false;
-        
         private ICanceller<T> _canceller = null;
         private T _target = default;
         
@@ -40,11 +39,7 @@
         {
             _canceller?.Cancel(_target);
             _canceller = null; _target = default;
-
-            if (IsRecyclable)
-            {
-                CancelToken.Recycle(this);
-            }
+            CancelToken.Release(this);
         }
     }
 }

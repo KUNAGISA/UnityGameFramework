@@ -1,6 +1,6 @@
 namespace GameFramework
 {
-    internal class DefaultCancelTokenProvider : ICancelTokenProvider
+    internal class DefaultCancelTokenFactory : ICancelTokenFactory
     {
         public CancelToken<T> Create<T>()
         {

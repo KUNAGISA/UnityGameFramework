@@ -1,6 +1,6 @@
 namespace GameFramework
 {
-    public interface ICancelTokenProvider
+    public interface ICancelTokenFactory
     {
         CancelToken<T> Create<T>();
         void Recycle<T>(CancelToken<T> token);

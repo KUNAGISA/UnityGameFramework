@@ -3,9 +3,9 @@ namespace GameFramework
     public interface ICancelToken
     {
         /// <summary>
-        /// 是否可以回收，如果是则在<see cref="Cancel"/>之后回收
+        /// 取消行为
+        /// **取消后Token已经销毁，后续应不再持有**
         /// </summary>
-        bool IsRecyclable { get; set; }
         void Cancel();
     }
 }
