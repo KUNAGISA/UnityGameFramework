@@ -70,6 +70,8 @@ namespace GameFramework
                 return;
             }
 
+            _architecture.OnDestroy();
+            
             DestroyModules<ISystem>(_architecture._iocContainer);
             DestroyModules<IModel>(_architecture._iocContainer);
             DestroyModules<IUtility>(_architecture._iocContainer);
@@ -77,7 +79,6 @@ namespace GameFramework
             _architecture._iocContainer.Clear();
             _architecture._events.Clear();
 
-            _architecture.OnDestroy();
             _architecture = null;
         }
         
