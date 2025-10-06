@@ -10,6 +10,13 @@ namespace GameFramework
             set => _factory = value ?? new DefaultCancelTokenFactory();
         }
 
+        private sealed class NoneCancelToken : ICancelToken
+        {
+            public void Cancel() { }
+        }
+        
+        public static ICancelToken None { get; } = new NoneCancelToken();
+        
         public static CancelToken<T> Get<T>(ICanceller<T> canceller, T target)
         {
             var token = _factory.Create<T>();
@@ -23,7 +30,7 @@ namespace GameFramework
             _factory.Recycle(token);
         }
     }
-    
+
     public sealed class CancelToken<T> : ICancelToken
     {
         private ICanceller<T> _canceller = null;
