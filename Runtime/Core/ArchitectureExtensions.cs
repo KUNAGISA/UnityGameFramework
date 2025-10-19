@@ -15,7 +15,7 @@ namespace GameFramework
         protected internal void Destroy();
     }
 
-    public interface ICanGetUtility : IBelongArchitecture { }
+    public interface ICanGetService : IBelongArchitecture { }
 
     public interface ICanGetModel : IBelongArchitecture { }
 
@@ -31,34 +31,19 @@ namespace GameFramework
 
     public static class ArchitectureExtensions
     {
-        public static TUtility GetUtility<TUtility>(this ICanGetUtility context) where TUtility : class, IUtility
+        public static TUtility GetService<TUtility>(this ICanGetService context) where TUtility : class, IService
         {
             return context.GetArchitecture().Get<TUtility>();
-        }
-
-        public static IEnumerable<TUtility> SelectUtility<TUtility>(this ICanGetUtility context) where TUtility : class, IUtility
-        {
-            return context.GetArchitecture().Select<TUtility>();
         }
         
         public static TModel GetModel<TModel>(this ICanGetModel context) where TModel : class, IModel
         {
             return context.GetArchitecture().Get<TModel>();
         }
-
-        public static IEnumerable<TModel> SelectModel<TModel>(this ICanGetUtility context) where TModel : class, IModel
-        {
-            return context.GetArchitecture().Select<TModel>();
-        }
         
         public static TSystem GetSystem<TSystem>(this ICanGetSystem context) where TSystem : class, ISystem
         {
             return context.GetArchitecture().Get<TSystem>();
-        }
-
-        public static IEnumerable<TSystem> SelectSystem<TSystem>(this ICanGetUtility context) where TSystem : class, ISystem
-        {
-            return context.GetArchitecture().Select<TSystem>();
         }
         
         public static void SendCommand(this ICanSendCommand context, ICommand command)
@@ -106,9 +91,9 @@ namespace GameFramework
             context.GetArchitecture().SendEvent(new TEvent());
         }
 
-        public static void SendEvent<TEvent>(this ICanSendEvent context, in TEvent e)
+        public static void SendEvent<TEvent>(this ICanSendEvent context, in TEvent evt)
         {
-            context.GetArchitecture().SendEvent(e);
+            context.GetArchitecture().SendEvent(evt);
         }
     }
 }

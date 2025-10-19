@@ -5,7 +5,7 @@
 
     }
 
-    public abstract partial class AbstractModel : IModel, ICanGetUtility, ICanSendEvent
+    public abstract partial class AbstractModel : IModel, ICanGetService, ICanSendEvent
     {
         private IArchitecture _architecture = null;
 
