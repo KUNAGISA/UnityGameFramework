@@ -34,7 +34,7 @@ namespace GameFramework
             return _instances.TryGetValue(typeof(T), out var instance) ? (T)instance : null;
         }
 
-        public IEnumerable<T> Select<T>() where T : class
+        public IEnumerable<T> OfType<T>() where T : class
         {
             return _instances.Values.OfType<T>();
         }

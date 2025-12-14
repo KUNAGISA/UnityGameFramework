@@ -14,7 +14,7 @@ namespace GameFramework
         {
             public void Cancel() { }
         }
-        
+    
         public static ICancelToken None { get; } = new NoneCancelToken();
         
         public static CancelToken<T> Get<T>(ICanceller<T> canceller, T target)

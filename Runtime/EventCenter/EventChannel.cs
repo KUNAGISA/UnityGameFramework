@@ -9,7 +9,7 @@ namespace GameFramework
 
     public class EventChannel<T> : IEventChannel, ICanceller<Action<T>>
     {
-        private event Action<T> _callback;
+        private Action<T> _callback;
         
         public ICancelToken Register(Action<T> callback)
         {

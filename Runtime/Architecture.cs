@@ -11,7 +11,6 @@ namespace GameFramework
         void Register<T>(T instance) where T : class, IArchitectureModule;
         void UnRegister<T>() where T : class, IArchitectureModule;
         T Get<T>() where T : class, IArchitectureModule;
-        IEnumerable<T> Select<T>() where T : class;
 
         void SendCommand<TCommand>(TCommand command) where TCommand : ICommand;
 
@@ -22,7 +21,7 @@ namespace GameFramework
         ICancelToken RegisterEvent<TEvent>(Action<TEvent> onEvent);
         void CancelEvent<TEvent>(Action<TEvent> onEvent);
 
-        void SendEvent<TEvent>(in TEvent e);
+        void SendEvent<TEvent>(in TEvent evt);
     }
 
     public abstract partial class Architecture<TArchitecture> : IArchitecture, ICommandContext, IQueryContext where TArchitecture : Architecture<TArchitecture>, new()
@@ -56,7 +55,7 @@ namespace GameFramework
 
             OnRegisterPatch?.Invoke(_architecture);
 
-            InitModules<IUtility>(_architecture._iocContainer);
+            InitModules<IService>(_architecture._iocContainer);
             InitModules<IModel>(_architecture._iocContainer);
             InitModules<ISystem>(_architecture._iocContainer);
 
@@ -74,7 +73,7 @@ namespace GameFramework
             
             DestroyModules<ISystem>(_architecture._iocContainer);
             DestroyModules<IModel>(_architecture._iocContainer);
-            DestroyModules<IUtility>(_architecture._iocContainer);
+            DestroyModules<IService>(_architecture._iocContainer);
             
             _architecture._iocContainer.Clear();
             _architecture._events.Clear();
@@ -85,7 +84,7 @@ namespace GameFramework
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void InitModules<T>(IOCContainer ioc) where T : class, IArchitectureModule
         {
-            foreach(var module in ioc.Select<T>())
+            foreach(var module in ioc.OfType<T>())
             {
                 module.Init();
             }
@@ -94,7 +93,7 @@ namespace GameFramework
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void DestroyModules<T>(IOCContainer ioc) where T : class, IArchitectureModule
         {
-            foreach(var module in ioc.Select<T>())
+            foreach(var module in ioc.OfType<T>())
             {
                 try
                 {
@@ -148,12 +147,7 @@ namespace GameFramework
         {
             return _iocContainer.Get<T>();
         }
-
-        public IEnumerable<T> Select<T>() where T : class
-        {
-            return _iocContainer.Select<T>();
-        }
-
+        
         public virtual void SendCommand<TCommand>(TCommand command) where TCommand : ICommand
         {
             command.Execute(this);
@@ -179,9 +173,9 @@ namespace GameFramework
             _events.Cancel(onEvent);
         }
 
-        public virtual void SendEvent<TEvent>(in TEvent e)
+        public virtual void SendEvent<TEvent>(in TEvent evt)
         {
-            _events.Send(e);
+            _events.Send(evt);
         }
     }
 }

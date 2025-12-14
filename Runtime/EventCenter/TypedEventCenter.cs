@@ -17,10 +17,10 @@ namespace GameFramework
 
         public ICancelToken Register<T>(Action<T> callback)
         {
-            if (!_channels.TryGetValue(typeof(T), out var channel))
+            if (!_channels.TryGetValue(typeof(EventChannel<T>), out var channel))
             {
                 channel = new EventChannel<T>();
-                _channels.Add(typeof(T), channel);
+                _channels.Add(typeof(EventChannel<T>), channel);
             }
             return ((EventChannel<T>)channel).Register(callback);
         }
