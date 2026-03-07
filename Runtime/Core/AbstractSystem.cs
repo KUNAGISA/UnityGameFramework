@@ -12,9 +12,16 @@
         protected virtual void OnInit() { }
         protected virtual void OnDestroy() { }
 
+        protected virtual void OnArchitectureReady(IArchitecture architecture) { }
+
         void IArchitectureModule.Init() => OnInit();
         void IArchitectureModule.Destroy() => OnDestroy();
-        void IArchitectureModule.SetArchitecture(IArchitecture architecture) => _architecture = architecture;
         IArchitecture IBelongArchitecture.GetArchitecture() => _architecture;
+
+        void IArchitectureModule.SetArchitecture(IArchitecture architecture)
+        {
+            _architecture = architecture;
+            OnArchitectureReady(architecture);
+        }
     }
 }
