@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace GameFramework
 {
-    public sealed class BindableProperty<T> : IBindableProperty<T>, IReadonlyBindableProperty<T>, ICanceller<Action<T>>
+    public sealed class BindableProperty<T> : IBindableProperty<T>, IReadonlyBindableProperty<T>
     {
         /// <summary>
         /// 默认使用<see cref="EqualityComparer{T}.Default"/>，可自定义比较
@@ -19,12 +19,12 @@ namespace GameFramework
                 if (!Comparer.Equals(value, _value))
                 {
                     _value = value;
-                    OnValueChanged?.Invoke(_value);
+                    _onValueChanged?.Emit(_value);
                 }
             }
         }
 
-        private event Action<T> OnValueChanged;
+        private Signal<T> _onValueChanged;
 
         public BindableProperty(T value = default)
         {
@@ -36,23 +36,18 @@ namespace GameFramework
             _value = value;
         }
 
-        public ICancelToken Register(Action<T> onValueChanged)
+        public SignalToken Register(Action<T> onValueChanged)
         {
-            OnValueChanged += onValueChanged;
-            return CancelToken.Get(this, onValueChanged);
+            _onValueChanged ??= new Signal<T>();
+            return _onValueChanged.Register(onValueChanged);
         }
 
-        public ICancelToken RegisterWithInitValue(Action<T> onValueChanged)
+        public SignalToken RegisterWithInitValue(Action<T> onValueChanged)
         {
             onValueChanged(_value);
             return Register(onValueChanged);
         }
-
-        public void Cancel(Action<T> onValueChanged)
-        {
-            OnValueChanged -= onValueChanged;
-        }
-
+        
         public static implicit operator T (BindableProperty<T> property)
         {
             return property._value;

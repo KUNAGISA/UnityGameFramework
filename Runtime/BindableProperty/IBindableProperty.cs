@@ -6,12 +6,10 @@ namespace GameFramework
     {
         T Value { get; set; }
 
-        ICancelToken Register(Action<T> onValueChanged);
+        SignalToken Register(Action<T> onValueChanged);
 
-        ICancelToken RegisterWithInitValue(Action<T> onValueChanged);
-
-        void Cancel(Action<T> onValueChanged);
-
+        SignalToken RegisterWithInitValue(Action<T> onValueChanged);
+        
         void SetValueSilently(T value);
     }
 }

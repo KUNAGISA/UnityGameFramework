@@ -18,9 +18,7 @@ namespace GameFramework
 
         TResult SendQuery<TQuery, TResult>(TQuery query) where TQuery : IQuery<TResult>;
 
-        ICancelToken RegisterEvent<TEvent>(Action<TEvent> onEvent);
-        void CancelEvent<TEvent>(Action<TEvent> onEvent);
-
+        SignalToken RegisterEvent<TEvent>(Action<TEvent> onEvent);
         void SendEvent<TEvent>(in TEvent evt);
     }
 
@@ -108,7 +106,7 @@ namespace GameFramework
         }
         
         private bool _initialize = false;
-        private readonly TypedEventCenter _events = new TypedEventCenter();
+        private readonly EventBus _events = new EventBus();
         private readonly IOCContainer _iocContainer = new IOCContainer();
 
         protected abstract void OnInit();
@@ -163,16 +161,11 @@ namespace GameFramework
             return query.Do(this);
         }
 
-        public virtual ICancelToken RegisterEvent<TEvent>(Action<TEvent> onEvent)
+        public virtual SignalToken RegisterEvent<TEvent>(Action<TEvent> onEvent)
         {
             return _events.Register(onEvent);
         }
-
-        public virtual void CancelEvent<TEvent>(Action<TEvent> onEvent)
-        {
-            _events.Cancel(onEvent);
-        }
-
+        
         public virtual void SendEvent<TEvent>(in TEvent evt)
         {
             _events.Send(evt);

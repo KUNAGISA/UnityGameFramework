@@ -76,16 +76,11 @@ namespace GameFramework
             return context.GetArchitecture().SendQuery<TQuery, TResult>(query);
         }
 
-        public static ICancelToken RegisterEvent<TEvent>(this ICanRegisterEvent context, Action<TEvent> onEvent)
+        public static SignalToken RegisterEvent<TEvent>(this ICanRegisterEvent context, Action<TEvent> onEvent)
         {
             return context.GetArchitecture().RegisterEvent(onEvent);
         }
-
-        public static void CancelEvent<TEvent>(this ICanRegisterEvent context, Action<TEvent> onEvent)
-        {
-            context.GetArchitecture().CancelEvent(onEvent);
-        }
-
+        
         public static void SendEvent<TEvent>(this ICanSendEvent context) where TEvent : new()
         {
             context.GetArchitecture().SendEvent(new TEvent());
