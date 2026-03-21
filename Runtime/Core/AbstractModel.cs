@@ -1,11 +1,11 @@
 ﻿namespace GameFramework
 {
-    public interface IModel : IArchitectureModule
+    public interface IModel : IArchitectureModule, ICanGetService, ICanSendEvent
     {
 
     }
 
-    public abstract partial class AbstractModel : IModel, ICanGetService, ICanSendEvent
+    public abstract partial class AbstractModel : IModel
     {
         private IArchitecture _architecture = null;
 
