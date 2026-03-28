@@ -4,7 +4,7 @@ namespace GameFramework
     {
         public static ICancelToken ToCancelToken(in this SignalToken token)
         {
-            return token.signal != null ? CancelToken.Get(token.signal, token) : CancelToken.None;
+            return token.Signal != null ? CancelToken.Get(token.Signal, token) : CancelToken.None;
         }
     }
 }

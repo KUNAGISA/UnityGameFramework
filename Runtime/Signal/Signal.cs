@@ -13,16 +13,16 @@ namespace GameFramework
 
         protected struct SignalSlot
         {
-            internal int prevIndex;
-            internal int nextIndex;
-            internal int version;
+            internal int PrevIndex;
+            internal int NextIndex;
+            internal int Version;
 
-            internal T callback;
+            internal T Callback;
         
             internal void Invalidate()
             {
-                ++version;
-                callback = null;
+                ++Version;
+                Callback = null;
             }
         }
         
@@ -47,7 +47,7 @@ namespace GameFramework
             for (var index = 0; index < _count; ++index)
             {
                 _slots[index].Invalidate();
-                _slots[index].prevIndex = _slots[index].nextIndex = InvalidIndex;
+                _slots[index].PrevIndex = _slots[index].NextIndex = InvalidIndex;
             }
             _count = 0;
             _freeHead = InvalidIndex;
@@ -73,76 +73,76 @@ namespace GameFramework
             else
             {
                 index = _freeHead;
-                _freeHead = _slots[_freeHead].nextIndex;
+                _freeHead = _slots[_freeHead].NextIndex;
             }
 
             ref var slot = ref _slots[index];
-            slot.callback = callback;
+            slot.Callback = callback;
 
             if (_activeHead == InvalidIndex)
             {
                 _activeHead = index;
                 _activeTail = index;
-                slot.prevIndex = InvalidIndex;
-                slot.nextIndex = InvalidIndex;
+                slot.PrevIndex = InvalidIndex;
+                slot.NextIndex = InvalidIndex;
             }
             else
             {
                 // 能跑进来_activeTail必定是有效的
-                _slots[_activeTail].nextIndex = index;
-                slot.prevIndex = _activeTail;
-                slot.nextIndex = InvalidIndex;
+                _slots[_activeTail].NextIndex = index;
+                slot.PrevIndex = _activeTail;
+                slot.NextIndex = InvalidIndex;
                 _activeTail = index;
             }
 
-            return new SignalToken(this, index, slot.version);
+            return new SignalToken(this, index, slot.Version);
         }
         
         public void Cancel(SignalToken token)
         {
-            if (token.signal != this || token.index >= _count || token.index < 0)
+            if (token.Signal != this || token.Index >= _count || token.Index < 0)
             {
                 return;
             }
 
-            if (_slots[token.index].version != token.version)
+            if (_slots[token.Index].Version != token.Version)
             {
                 return;
             }
 
-            ref var slot = ref _slots[token.index];
-            var prevIndex = slot.prevIndex;
-            var nextIndex = slot.nextIndex;
+            ref var slot = ref _slots[token.Index];
+            var prevIndex = slot.PrevIndex;
+            var nextIndex = slot.NextIndex;
 
             if (prevIndex != InvalidIndex)
             {
-                _slots[prevIndex].nextIndex = nextIndex;
+                _slots[prevIndex].NextIndex = nextIndex;
             }
             if (nextIndex != InvalidIndex)
             {
-                _slots[nextIndex].prevIndex = prevIndex;
+                _slots[nextIndex].PrevIndex = prevIndex;
             }
-            if (_activeHead == token.index)
+            if (_activeHead == token.Index)
             {
                 _activeHead = nextIndex;
             }
-            if (_activeTail == token.index)
+            if (_activeTail == token.Index)
             {
                 _activeTail = prevIndex;
             }
-            if (_emitCursor == token.index)
+            if (_emitCursor == token.Index)
             {
                 _emitCursor = nextIndex;
             }
-            if (_emitEnd == token.index)
+            if (_emitEnd == token.Index)
             {
                 _emitEnd = prevIndex;
             }
             
             slot.Invalidate();
-            slot.prevIndex = InvalidIndex;
-            slot.nextIndex = _freeHead;
-            _freeHead = token.index;
+            slot.PrevIndex = InvalidIndex;
+            slot.NextIndex = _freeHead;
+            _freeHead = token.Index;
         }
         
         private void EnsureCapacity()
@@ -178,7 +178,7 @@ namespace GameFramework
             {
                 return false;
             }
-            _emitCursor = _slots[current].nextIndex;
+            _emitCursor = _slots[current].NextIndex;
             return true;
         }
 
@@ -204,7 +204,7 @@ namespace GameFramework
                 while (MoveNext(out var current))
                 {
                     ref readonly var slot = ref GetSlot(current);
-                    slot.callback?.Invoke(); //有错误直接抛出，让外部调用者自己捕获
+                    slot.Callback?.Invoke(); //有错误直接抛出，让外部调用者自己捕获
                     if (IsLast(current))
                     {
                         break;
@@ -228,7 +228,7 @@ namespace GameFramework
                 while (MoveNext(out var current))
                 {
                     ref readonly var slot = ref GetSlot(current);
-                    slot.callback?.Invoke(arg); //有错误直接抛出，让外部调用者自己捕获
+                    slot.Callback?.Invoke(arg); //有错误直接抛出，让外部调用者自己捕获
                     if (IsLast(current))
                     {
                         break;
@@ -252,7 +252,7 @@ namespace GameFramework
                 while (MoveNext(out var current))
                 {
                     ref readonly var slot = ref GetSlot(current);
-                    slot.callback?.Invoke(arg1, arg2); //有错误直接抛出，让外部调用者自己捕获
+                    slot.Callback?.Invoke(arg1, arg2); //有错误直接抛出，让外部调用者自己捕获
                     if (IsLast(current))
                     {
                         break;

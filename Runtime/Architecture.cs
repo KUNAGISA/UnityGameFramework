@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
@@ -27,7 +26,7 @@ namespace GameFramework
         public static event Action<TArchitecture> OnRegisterPatch;
 
         private static TArchitecture _architecture = null;
-        public static IArchitecture Instance
+        public static TArchitecture Instance
         {
             get
             {

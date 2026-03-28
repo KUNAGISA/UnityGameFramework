@@ -2,20 +2,20 @@ namespace GameFramework
 {
     public readonly struct SignalToken
     {
-        internal readonly ISignal signal;
-        internal readonly int index;
-        internal readonly int version;
+        internal readonly ISignal Signal;
+        internal readonly int Index;
+        internal readonly int Version;
         
         internal SignalToken(ISignal signal, int index, int version)
         {
-            this.index = index;
-            this.version = version;
-            this.signal = signal;
+            Index = index;
+            Version = version;
+            Signal = signal;
         }
 
         public void Cancel()
         {
-            signal?.Cancel(this);
+            Signal?.Cancel(this);
         }
     }
 }
