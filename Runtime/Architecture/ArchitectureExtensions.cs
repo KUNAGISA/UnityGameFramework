@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 
-namespace GameFramework
+namespace Aoiro
 {
     public interface IBelongArchitecture
     {

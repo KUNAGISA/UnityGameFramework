@@ -1,4 +1,4 @@
-﻿namespace GameFramework
+﻿namespace Aoiro
 {
     public interface ICommandContext : ICanGetService, ICanGetModel, ICanGetSystem, ICanSendCommand, ICanSendQuery, ICanSendEvent
     {

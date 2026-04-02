@@ -1,4 +1,4 @@
-namespace GameFramework
+namespace Aoiro
 {
     internal class DefaultCancelTokenFactory : ICancelTokenFactory
     {

@@ -1,4 +1,4 @@
-namespace GameFramework
+namespace Aoiro
 {
     public interface ICancelToken
     {

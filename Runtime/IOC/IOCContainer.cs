@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace GameFramework
+namespace Aoiro
 {
     public sealed class IOCContainer
     {

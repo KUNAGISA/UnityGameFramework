@@ -1,11 +1,11 @@
-﻿namespace GameFramework
+﻿namespace Aoiro
 {
-    public interface IService : IArchitectureModule, ICanSendEvent
+    public interface IModel : IArchitectureModule, ICanGetService, ICanSendEvent
     {
 
     }
 
-    public abstract partial class AbstractService : IService
+    public abstract partial class AbstractModel : IModel
     {
         private IArchitecture _architecture = null;
 
@@ -14,7 +14,7 @@
 
         void IArchitectureModule.Init() => OnInit();
         void IArchitectureModule.Destroy() => OnDestroy();
-        void IArchitectureModule.SetArchitecture(IArchitecture architecture) => _architecture = architecture;
+        void IArchitectureModule.SetArchitecture(IArchitecture architecutre) => _architecture = architecutre;
         IArchitecture IBelongArchitecture.GetArchitecture() => _architecture;
     }
 }

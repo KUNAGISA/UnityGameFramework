@@ -1,6 +1,4 @@
-﻿using System.Threading;
-
-namespace GameFramework
+﻿namespace Aoiro
 {
     public static class CancelToken
     {

@@ -1,6 +1,6 @@
 {
-    "name": "GameFramework",
-    "rootNamespace": "",
+    "name": "Aoiro.Runtime",
+    "rootNamespace": "Aoiro",
     "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],

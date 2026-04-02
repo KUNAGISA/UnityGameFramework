@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
-namespace GameFramework
+namespace Aoiro
 {
     public partial interface IArchitecture
     {

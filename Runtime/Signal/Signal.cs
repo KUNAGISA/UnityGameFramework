@@ -1,6 +1,6 @@
 using System;
 
-namespace GameFramework
+namespace Aoiro
 {
     internal interface ISignal : ICanceller<SignalToken>
     {

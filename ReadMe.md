@@ -1,28 +1,196 @@
-### 简单的分层框架
+# Aoiro
 
-这是一个基于[`QFramework`](https://github.com/liangxiegame/QFramework)再改造的框架，简单的分为`System`，`Model`，`Utility`三层，再加上`Command`和`Query`作为通用功能处理。同层之间理论不允许互相访问，下层不允许访问上层。
+> A lightweight runtime architecture library for Unity.
 
-- `System`层是模块化的逻辑功能，给多个`Controller`提供共享的逻辑功能，允许访问`System`(但注意不要循环引用)，`Model`，`Utility`，可以执行`Command`和`Query`，可以发送和接收事件。
-- `Model`层是数据模块，给`System`层和`Controller`提供共享的数据功能。允许访问`Utility`，可以发送事件。
-- `Utility`层是工具模块，比如一些持久化数据，配置读取，SDK之类的就可以放到这一层。可以发送事件
-- `Command`跟`System`差不多，但这是一个无状态对象，可以做成`struct`。如果一个功能涉及到多个模块，不知道放哪里的时候就可以直接做成`Command`。允许访问`System`，`Model`，`Utility`，可以执行`Command`和`Query`，可以发送事件。
-- `Query`一般用于多模块的组合数据查询。允许访问`System`，`Model`，`Utility`，可以执行`Query`，可以发送事件。
+`Aoiro` 是一个面向 Unity 的轻量级运行时架构库，提供统一的架构入口、模块注册、命令与查询分发，以及常用的事件、信号和数据绑定能力。
 
-> 关于`Controller`层
+它不是一个“大而全”的框架，而是一套更适合放在项目核心层的基础设施：足够轻，足够清晰，也足够直接。
 
-`QFramework`中的`Controller`层在这框架中不直接提供，可以每个项目自己定义一个对应的接口，参考如下
+---
 
-```c#
-internal interface IController : ICanGetModel, ICanGetSystem, ICanGetUtility, ICanSendCommand, ICanSendEvent, ICanSendQuery, ICanRegisterEvent
+## ✦ 名字来源
+
+`Aoiro` 这个名字来源于西尾维新的《戏言系列》中角色“玖渚友”的外号“青色学者”。
+
+这里取“青色”之意，作为这个库的名字，同时也是框架的根命名空间：`Aoiro`。
+
+---
+
+## ✦ 设计参考
+
+本库整体设计参考并借鉴了 [QFramework](https://github.com/liangxiegame/QFramework) 的架构思路。
+
+在此基础上，Aoiro 做了更偏向项目运行时核心层的裁剪与简化，重点保留了：
+
+- 清晰的 `Architecture` 统一入口
+- 明确的 `Model / System / Service` 职责划分
+- 轻量直接的 `Command / Query` 调用方式
+- 更容易按需组合的基础运行时模块
+
+---
+
+## ✦ 核心特性
+
+- `Architecture<TArchitecture>` 作为统一架构入口
+- `Model`、`System`、`Service` 三类模块的注册与生命周期管理
+- `Command` 与 `Query` 的统一分发
+- `IOCContainer` 运行时模块存取
+- `EventBus` 类型安全事件派发
+- `Signal` 轻量订阅与取消
+- `BindableProperty<T>` 可观察数据绑定
+- `CancelToken` 统一取消句柄
+
+---
+
+## ✦ 架构说明
+
+### Architecture
+
+`Architecture<TArchitecture>` 是整个框架的核心。
+
+一个 Architecture 实例负责：
+
+- 注册和获取模块
+- 初始化和销毁模块
+- 分发命令与查询
+- 注册和派发事件
+
+### 模块职责
+
+- `Model`：承载共享状态与运行时数据
+- `System`：承载业务流程与跨模块协调逻辑
+- `Service`：承载基础设施能力或外部服务封装
+- `Command`：承载无状态写操作
+- `Query`：承载无状态读操作
+
+通常建议让状态尽量收敛在 `Model`，让流程进入 `System`，让外部依赖隔离在 `Service`。
+
+---
+
+## ✦ 快速开始
+
+### 1. 定义自己的 Architecture
+
+```csharp
+using Aoiro;
+
+public sealed class GameArchitecture : Architecture<GameArchitecture>
 {
-    IArchitecture IBelongArchitecture.GetArchitecture() => MyArchitecture.Instance;
+    protected override void OnInit()
+    {
+        Register(new PlayerModel());
+        Register(new PlayerSystem());
+        Register(new SaveService());
+    }
+
+    protected override void OnDestroy()
+    {
+    }
 }
 ```
 
-> 关于`ICommandProvider`和`IQueryProvider`两个接口
+### 2. 定义 Model
 
-这两个接口分别是`ICommand`和`IQuery`执行接口中传入的对象，`QFramwork`中`Command`和`Query`也是使用扩展接口的方式去处理，但如果是结构体的话会有装箱，所以这里就改成了把`Architecture`作为`Provider`传递进去使用。
+```csharp
+using Aoiro;
 
-> 关于`BindableProperty`
+public sealed class PlayerModel : AbstractModel
+{
+    public readonly BindableProperty<int> Level = new(1);
+}
+```
 
-这边使用`IEqualityComparer<T>`接口来做两个数值是否相等的判断，默认情况下使用`EqualityComparer<T>.Default`，如果需要自定义`Comparer`，可以修改`BindableProperty<T>.Comparer`静态属性。
+### 3. 定义 Command
+
+```csharp
+using Aoiro;
+
+public sealed class LevelUpCommand : AbstractCommand
+{
+    protected override void Execute(ICommandContext context)
+    {
+        var playerModel = context.GetModel<PlayerModel>();
+        playerModel.Level.Value++;
+    }
+}
+```
+
+### 4. 发送 Command
+
+```csharp
+GameArchitecture.Instance.SendCommand(new LevelUpCommand());
+```
+
+---
+
+## ✦ 常用能力
+
+### 获取模块
+
+```csharp
+var playerModel = GameArchitecture.Instance.Get<PlayerModel>();
+```
+
+也可以在支持扩展能力的上下文中直接调用：
+
+```csharp
+var playerModel = this.GetModel<PlayerModel>();
+var saveService = this.GetService<SaveService>();
+```
+
+### EventBus
+
+适合按事件类型进行广播：
+
+```csharp
+public struct PlayerLevelChanged
+{
+    public int Level;
+}
+
+var token = GameArchitecture.Instance.RegisterEvent<PlayerLevelChanged>(e =>
+{
+    UnityEngine.Debug.Log(e.Level);
+});
+
+GameArchitecture.Instance.SendEvent(new PlayerLevelChanged
+{
+    Level = 2
+});
+```
+
+### BindableProperty
+
+适合对单个值进行观察：
+
+```csharp
+var token = playerModel.Level.RegisterWithInitValue(level =>
+{
+    UnityEngine.Debug.Log(level);
+});
+
+playerModel.Level.Value = 2;
+```
+
+### Signal
+
+适合更轻量的本地信号机制：
+
+```csharp
+var signal = new Signal<int>();
+var token = signal.Register(value =>
+{
+    UnityEngine.Debug.Log(value);
+});
+
+signal.Emit(100);
+```
+
+---
+
+## ✦ 使用约定
+
+- `Command` 和 `Query` 设计为无状态对象；如果调用频率高，建议使用结构体或对象复用
+- 一个 `Architecture` 内部应尽量保持模块职责单一，避免相互污染
+- `System` 更适合组织流程，`Model` 更适合承载状态，`Service` 更适合封装能力
+- 当不再需要整个架构实例时，可以调用 `DestroyInstance()` 释放模块与事件

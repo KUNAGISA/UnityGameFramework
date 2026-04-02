@@ -1,6 +1,6 @@
 using System;
 
-namespace GameFramework
+namespace Aoiro
 {
     public interface IReadonlyBindableProperty<T>
     {

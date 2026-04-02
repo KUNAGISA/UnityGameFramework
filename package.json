@@ -1,7 +1,7 @@
 {
-  "name": "com.kunagisatomo.gameframework",
-  "displayName": "Game Framework",
-  "description": "Simple Game Framework",
+  "name": "com.kunagisatomo.aoiro",
+  "displayName": "Aoiro",
+  "description": "A lightweight runtime architecture library for Unity.",
   "version": "3.0.3",
   "author": {
     "name": "\u96f6",
